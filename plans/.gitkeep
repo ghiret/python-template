@@ -1,0 +1,12 @@
+# Plans Directory
+
+This directory contains implementation plans for features and changes.
+
+Each plan should be a markdown file following this structure:
+- Problem statement
+- Proposed solution
+- Implementation steps
+- Testing strategy
+- Acceptance criteria
+
+Plans are reviewed using the `review-plan` command before execution.
