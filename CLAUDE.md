@@ -42,6 +42,7 @@ You must adhere to this lifecycle for every feature request:
 - **Package Manager:** Use `uv` for all Python dependency management.
 - **Linting/Formatting:** Use `ruff` (configured in pyproject.toml).
 - **Testing:** Code without tests is incomplete. Use `pytest`.
+- **Documentation:** Use Google-style docstrings. Docs are auto-generated with MkDocs.
 - **Dependencies:** Check `pyproject.toml` before adding new libs. Use `uv add <package>`.
 - **Git:** Use `gh` CLI for PRs and Issues.
 - **Type Hints:** Use type hints for all function signatures.
@@ -65,6 +66,10 @@ uv run pytest --cov          # Run tests with coverage
 # Pre-commit
 uv run pre-commit run --all-files  # Run all hooks
 
+# Documentation
+uv run mkdocs serve              # Serve docs locally (hot reload)
+uv run mkdocs build              # Build static docs
+
 # Git
 git diff --name-only main...HEAD   # See changed files
 gh pr create                       # Create pull request
@@ -76,7 +81,7 @@ gh pr create                       # Create pull request
 ├── .claude/           # Claude Code commands and skills
 ├── .devcontainer/     # DevContainer configuration
 ├── agent_docs/        # Untracked workspace for AI agent research/dumps
-├── docs/              # Documentation
+├── docs/              # Documentation (MkDocs source)
 │   └── scratchpads/   # Working notes and checklists
 ├── plans/             # Implementation plans
 ├── src/               # Source code (your package)
