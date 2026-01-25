@@ -1,0 +1,2 @@
+Run the `execute-plan` skill on the current branch.
+Usage: /project:execute-plan plans/my-plan.md
