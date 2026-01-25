@@ -15,6 +15,7 @@ Ask the user for:
 
 4. **License** (default: MIT)
    - Options: MIT, Apache-2.0, GPL-3.0, BSD-3-Clause, Unlicense, None
+   - Note: This template is MIT licensed, but your project can use any license
 
 5. **GitHub Username/Org** (for repository URL)
 
