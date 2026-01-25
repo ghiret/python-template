@@ -42,6 +42,25 @@ docs/
 docs/scratchpads/
 ```
 
+#### Release Please Configuration
+Update `release-please-config.json`:
+```json
+{
+  "packages": {
+    ".": {
+      "package-name": "<project_name>"
+    }
+  }
+}
+```
+
+Reset `.release-please-manifest.json` to start fresh:
+```json
+{
+  ".": "0.1.0"
+}
+```
+
 #### License File
 Generate appropriate LICENSE file based on selection:
 - MIT: Include year and author name

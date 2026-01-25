@@ -44,18 +44,24 @@ After gathering information:
 5. **Update `.devcontainer/Dockerfile`:**
    - Update `WORKDIR` to use new project name
 
-6. **Create `LICENSE` file** (if license selected)
+6. **Update `release-please-config.json`:**
+   - Set `package-name` to the new project name
 
-7. **Create required directories:**
+7. **Reset `.release-please-manifest.json`:**
+   - Reset version to `"0.1.0"` for fresh start
+
+8. **Create `LICENSE` file** (if license selected)
+
+9. **Create required directories:**
    - `plans/`
    - `docs/scratchpads/`
 
-8. **Initialize git remote** (if GitHub username provided):
-   - Suggest: `git remote set-url origin git@github.com:<user>/<repo>.git`
+10. **Initialize git remote** (if GitHub username provided):
+    - Suggest: `git remote set-url origin git@github.com:<user>/<repo>.git`
 
-9. **Run initial setup:**
-   - `uv sync --all-extras`
-   - `uv run pre-commit install`
+11. **Run initial setup:**
+    - `uv sync --all-extras`
+    - `uv run pre-commit install`
 
 ## Output
 
