@@ -62,6 +62,9 @@ uv run ruff format .         # Format code
 # Testing
 uv run pytest                # Run tests
 uv run pytest --cov          # Run tests with coverage
+uv run pytest --cov --cov-report=html  # Generate HTML coverage report
+uv run pytest -m "not slow"  # Skip slow tests
+uv run pytest -x             # Stop on first failure
 
 # Pre-commit
 uv run pre-commit run --all-files  # Run all hooks

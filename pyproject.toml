@@ -8,6 +8,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
+    "hypothesis>=6.100.0",
     "pre-commit>=4.0.0",
     "pytest>=8.0.0",
     "pytest-cov>=6.0.0",
@@ -52,3 +53,40 @@ known-first-party = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+# Uncomment when you have code to measure:
+# fail_under = 80
+show_missing = true
+skip_covered = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.hypothesis]
+deadline = 500
+max_examples = 100

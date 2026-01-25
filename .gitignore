@@ -39,6 +39,8 @@ uv.lock
 .coverage
 .pytest_cache/
 htmlcov/
+coverage.xml
+.hypothesis/
 .tox/
 .nox/
 
