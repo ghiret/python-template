@@ -30,6 +30,7 @@ After gathering information:
 1. **Update `pyproject.toml`:**
    - Set `name` to the package name (snake_case)
    - Set `description`
+   - Set `version = "0.1.0"` (reset for new project)
    - Add `authors = [{name = "...", email = "..."}]`
    - Add `license = {text = "..."}` if specified
    - Update `[tool.ruff.lint.isort] known-first-party`
