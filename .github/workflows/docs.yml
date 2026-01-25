@@ -5,6 +5,13 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to GitHub Pages (set to false to skip)'
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -36,14 +43,20 @@ jobs:
       - name: Build documentation
         run: uv run mkdocs build --strict
 
-      - name: Upload artifact
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Upload docs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: site/
+
+      - name: Upload pages artifact
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' || inputs.deploy == true
         uses: actions/upload-pages-artifact@v3
         with:
           path: site/
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.deploy == true)
     needs: build
     runs-on: ubuntu-latest
     environment:

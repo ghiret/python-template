@@ -17,6 +17,7 @@ Interactively collect from the user:
 - Author name and email
 - License preference
 - GitHub organization/username (optional)
+- GitHub Pages deployment (default: No for private repos, Yes for public)
 
 ### Step 2: Validate Input
 - Ensure package name follows PEP 8 naming conventions (lowercase, underscores)
@@ -68,6 +69,20 @@ Generate appropriate LICENSE file based on selection:
 - GPL-3.0: Standard GPL license
 - BSD-3-Clause: Include year and author
 - Unlicense: Public domain dedication
+
+#### GitHub Pages (if disabled)
+Modify `.github/workflows/docs.yml` to disable auto-deploy:
+- Change deploy condition to only trigger on manual `workflow_dispatch` with `deploy: true`
+- Docs will still build and be available as downloadable artifacts
+- Users can manually trigger deployment when ready
+
+#### mkdocs.yml
+Update with project details:
+```yaml
+site_name: <Project Name>
+repo_name: <username>/<repo>
+repo_url: https://github.com/<username>/<repo>
+```
 
 ### Step 4: Update References
 - Update all occurrences of "python-template" to new project name

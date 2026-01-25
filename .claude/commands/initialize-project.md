@@ -19,6 +19,10 @@ Ask the user for:
 
 5. **GitHub Username/Org** (for repository URL)
 
+6. **GitHub Pages** (default: No for private repos)
+   - Ask: "Is this a public repository that should deploy docs to GitHub Pages?"
+   - If No: Disable auto-deploy in `.github/workflows/docs.yml`
+
 ## Actions to Perform
 
 After gathering information:
@@ -51,9 +55,17 @@ After gathering information:
 7. **Reset `.release-please-manifest.json`:**
    - Reset version to `"0.1.0"` for fresh start
 
-8. **Create `LICENSE` file** (if license selected)
+8. **Update `.github/workflows/docs.yml`** (if GitHub Pages disabled):
+   - Change the deploy condition to only run on `workflow_dispatch` with `inputs.deploy == true`
+   - This keeps docs building as artifacts but doesn't auto-publish
 
-9. **Create required directories:**
+9. **Update `mkdocs.yml`:**
+   - Set `site_name` to project name
+   - Update `repo_name` and `repo_url` with GitHub username/org
+
+10. **Create `LICENSE` file** (if license selected)
+
+11. **Create required directories:**
    - `plans/`
    - `docs/scratchpads/`
 
