@@ -14,6 +14,7 @@ RUN apt-get update \
     wget \
     ca-certificates \
     build-essential \
+    jq \
     sudo \
     && apt-get autoremove -y \
     && apt-get clean -y \

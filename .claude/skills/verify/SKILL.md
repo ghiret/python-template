@@ -1,7 +1,8 @@
 ---
-name: verifying-implementation
-description: Post-execution quality control. Compares code changes against the original plan, checks for redundancy/reinvention, runs tests, and identifies forgotten requirements. Use when the user says "review the work", "check if I missed anything", or "verify this branch".
-allowed-tools: Read, Grep, Glob, LS, Bash
+name: verify
+description: Post-execution QA. Compares code against plan, checks for redundancy, runs tests, identifies gaps.
+disable-model-invocation: true
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
 # Verifying Implementation
@@ -37,7 +38,7 @@ Compare the **Plan** vs. **Actual Code**.
     * Did we clean up temp files?
 
 ### Step 4: Verification
-1.  **Run Tests:** Execute the relevant test suite (e.g., `npm test`).
+1.  **Run Tests:** Execute the relevant test suite (e.g., `uv run pytest`).
 2.  **Check Coverage:** Ensure new files have corresponding test files.
 
 ### Step 5: The Verdict

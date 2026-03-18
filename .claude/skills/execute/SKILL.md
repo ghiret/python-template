@@ -1,6 +1,7 @@
 ---
-name: executing-plans
-description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
+name: execute
+description: Executes implementation plans in batches with review checkpoints. Use when implementing an approved plan from ./plans/.
+disable-model-invocation: true
 ---
 
 # Executing Plans
@@ -11,7 +12,7 @@ Load plan, review critically, execute tasks in batches, report for review betwee
 
 **Core principle:** Batch execution with checkpoints for architect review.
 
-**Announce at start:** "I'm using the executing-plans skill to implement this plan."
+**Announce at start:** "I'm using the execute skill to implement this plan."
 
 ## The Process
 
@@ -79,4 +80,4 @@ After all tasks complete and verified:
 - Review plan critically first
 - Follow plan steps exactly
 - Don't skip verifications
-- Reference skills when pla
+- Reference skills when plan references them

@@ -1,7 +1,8 @@
 ---
-name: fixing-implementation-plans
-description: Applies specific fixes to a plan file based on architectural review feedback. Resolves redundancy, adds missing test steps, and aligns patterns. Use when the Reviewer returns "REQUEST CHANGES".
-allowed-tools: Read, Edit, Grep
+name: fix-plan
+description: Applies specific fixes to a plan file based on architectural review feedback.
+disable-model-invocation: true
+allowed-tools: Read, Edit, Grep, Glob
 ---
 
 # Fixing Implementation Plans
@@ -15,7 +16,7 @@ You act as a **Plan Surgeon**. Your goal is to take a rejected plan and the Revi
 ## The Process
 
 ### Step 1: Analyze the Critique
-Read the conversation history to find the **Review Report** from the `reviewing-implementation-plans` skill. Identify the specific failures:
+Read the conversation history to find the **Review Report** from the `/review-plan` skill. Identify the specific failures:
 1.  **Redundancy Failures:** Did the architect identify existing code we must use?
 2.  **Architecture Failures:** Did we use the wrong pattern (e.g., raw SQL instead of ORM)?
 3.  **Testing Failures:** Did we forget to include a verification step?
