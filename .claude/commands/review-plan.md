@@ -1,2 +1,2 @@
-Run the `reviewing-implementation-plans` skill on the file specified in arguments.
+Run the `/review-plan` skill on the file specified in arguments.
 Usage: /project:review-plan plans/my-feature.md

@@ -69,3 +69,4 @@ site/
 
 # Agent docs (untracked workspace for AI agents)
 agent_docs/
+external_docs/

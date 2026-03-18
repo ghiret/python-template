@@ -1,7 +1,9 @@
 ---
-name: verifying-documentation
-description: Synchronizes docs with code. Specializes in "Diagrams as Code" (Python) to generate architectural visuals. Verifies Sphinx/MkDocs and ensures generated PNGs match the actual implementation.
-allowed-tools: Read, Grep, Glob, Bash, LS
+name: verify-docs
+description: Sync documentation with code. Generates architecture diagrams using Python diagrams library. Verifies MkDocs config.
+context: fork
+agent: general-purpose
+allowed-tools: Read, Grep, Glob, Bash, Write, Edit
 ---
 
 # Verifying Documentation (Diagrams as Code Edition)
@@ -74,3 +76,4 @@ from diagrams import Diagram, Cluster, Edge
 from diagrams.aws.compute import EC2
 from diagrams.aws.database import RDS
 from diagrams.onprem.network import Nginx
+```

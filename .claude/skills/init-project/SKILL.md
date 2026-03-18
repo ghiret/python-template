@@ -1,3 +1,9 @@
+---
+name: init-project
+description: Initialize a freshly cloned python-template with project name, author, license, and configuration.
+disable-model-invocation: true
+---
+
 # Skill: Initializing Projects
 
 ## Purpose
