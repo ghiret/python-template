@@ -132,16 +132,50 @@ For fully autonomous development with built-in review loops and per-phase commit
 | test-writer | Inherit | Generate pytest + hypothesis tests |
 | security-reviewer | Opus | Focused security vulnerability audit |
 
-## Using as a Plugin
+## Installing in Other Projects
 
-The skills, agents, and hooks can be installed as a plugin in other repos:
+### One-liner install (copies into .claude/)
 
 ```bash
-# One-liner: clone and use
-claude --plugin-dir /path/to/python-template/python-factory-plugin
+curl -fsSL https://raw.githubusercontent.com/ghiret/python-template/main/install.sh | bash
+```
 
-# Skills are namespaced when used as a plugin:
-# /python-factory:execute, /python-factory:review-plan, etc.
+This installs 9 skills, 3 agents, 3 hooks, 3 rules, and 8 commands into your project's `.claude/` directory.
+
+**What it does:**
+- Detects and removes old-named skills (`executing-plans`, `verifying-implementation`, etc.)
+- Copies new skills by name — your custom skills are untouched
+- Preserves `settings.local.json` and any personal files in `.claude/`
+- If `settings.json` already exists, saves the new one as `settings.json.new` for manual merge
+- Warns if `jq` is missing (required for hooks)
+
+**What it does NOT do:**
+- Delete your custom skills, commands, or agents
+- Overwrite `settings.local.json`
+- Touch files outside `.claude/`
+
+### Install as a plugin (no changes to your repo)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ghiret/python-template/main/install.sh | bash -s -- --plugin
+```
+
+This copies `python-factory-plugin/` into your project. Use with:
+
+```bash
+claude --plugin-dir ./python-factory-plugin
+```
+
+Skills are namespaced: `/python-factory:execute`, `/python-factory:ralph-review`, etc.
+
+### Options
+
+```bash
+# Use a specific branch
+curl -fsSL https://raw.githubusercontent.com/ghiret/python-template/main/install.sh | bash -s -- --branch feature/my-branch
+
+# Show help
+curl -fsSL https://raw.githubusercontent.com/ghiret/python-template/main/install.sh | bash -s -- --help
 ```
 
 ## License
