@@ -44,6 +44,23 @@ Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if 
 * **Reviewer Feedback:** "Business logic belongs in Services."
 * **Your Fix:** Move the step: "Create `MyService` class. Implement logic there. Inject Service into Controller."
 
+#### Fix Type D: Resolving "Phase Structure"
+* **Bad Plan:** Tasks in a flat numbered list or unstructured sections.
+* **Reviewer Feedback:** "Plan must use `## Phase N: Title` headings with task checkboxes and verification subsections."
+* **Your Fix:** Restructure the plan into logical phases. Group related tasks together. Each phase gets:
+    ```markdown
+    ## Phase N: Descriptive Title
+    - [ ] Task description
+    - [ ] Another task
+    ### Verification
+    - Specific test command or check
+    ```
+* **Guidelines for grouping into phases:**
+    - Group by dependency: tasks that depend on each other go in the same phase
+    - Group by layer: data models → business logic → API → UI
+    - Each phase should be independently verifiable (tests can pass after just that phase)
+    - Aim for 2-5 tasks per phase — too many makes phases unwieldy, too few creates unnecessary commits
+
 ### Step 3: Sanity Check
 After editing, quickly read the file again to ensure:
 1.  The structure is still a numbered list/step-by-step format.

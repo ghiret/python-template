@@ -23,8 +23,8 @@ Before offering any opinion, you must map the plan to the current codebase.
     * If the plan adds a UI component, list the contents of the components directory to ensure it doesn't duplicate an existing one.
 3.  **Identify Architecture**: Determine the current design patterns (e.g., "We use React Context, not Redux" or "Services are in `/pkg`, not `/internal`").
 
-### Step 2: The Three-Point Inspection
-Analyze the plan against these three specific criteria:
+### Step 2: The Four-Point Inspection
+Analyze the plan against these four specific criteria:
 
 #### 1. The "Reinvention" Check
 * **Fail if:** The plan proposes writing code that already exists (e.g., writing a `formatDate` function when `utils/date.ts` exists).
@@ -42,6 +42,30 @@ Analyze the plan against these three specific criteria:
 * **Fail if:** The plan says "Test manually."
 * **Action:** Require specific automated test steps (e.g., "Add unit test to `__tests__`" or "Update integration spec").
 
+#### 4. The "Phase Structure" Check
+* **Fail if:** The plan does not use the required phase format.
+* **Required format:** Each plan MUST be organized into discrete phases using `## Phase N: Title` headings. Each phase MUST contain:
+    - A list of tasks (as `- [ ] Task description` checkboxes)
+    - A `### Verification` subsection with specific test/check steps
+* **Example of valid structure:**
+    ```markdown
+    ## Phase 1: Set up data models
+    - [ ] Create User model in src/models/user.py
+    - [ ] Add migration script
+    ### Verification
+    - Run: uv run pytest tests/models/test_user.py
+    - Verify migration applies cleanly
+
+    ## Phase 2: Implement API endpoints
+    - [ ] Create GET /users endpoint
+    - [ ] Create POST /users endpoint
+    ### Verification
+    - Run: uv run pytest tests/api/test_users.py
+    ```
+* **Fail if:** Tasks are in a flat list without phase groupings.
+* **Fail if:** Phase headings don't follow the `## Phase N: Title` pattern (e.g., using `### Step 1` or `## Part A`).
+* **Action:** "Plan must be structured into phases using `## Phase N: Title` headings with `- [ ]` task checkboxes and `### Verification` subsections. This is required for autonomous execution with `/ralph-execute`."
+
 ### Step 3: The Verdict
 
 Output your review in this exact format:
@@ -56,6 +80,9 @@ Output your review in this exact format:
 >
 > **3. Testability:** [Pass/Fail]
 > * (If Fail, suggest where tests fit in)
+>
+> **4. Phase Structure:** [Pass/Fail]
+> * (If Fail, explain what's missing: phase headings, task checkboxes, verification subsections)
 >
 > **Recommendations:**
 > (Bulleted list of required changes to the plan text)
