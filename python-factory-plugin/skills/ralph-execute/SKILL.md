@@ -45,7 +45,10 @@ For each phase i = 1, 2, 3, ..., P (you MUST go in order, one at a time):
    >
    > {paste the full phase content here, including tasks and verification subsection}
    >
-   > IMPORTANT: Do NOT implement tasks from any other phase. ONLY implement the tasks listed above.
+   > IMPORTANT:
+   > - Do NOT implement tasks from any other phase. ONLY implement the tasks listed above.
+   > - Run AUTONOMOUSLY — do NOT stop for feedback or ask for confirmation. Execute all tasks to completion.
+   > - Only stop if you hit an unrecoverable blocker (3+ failed attempts on the same issue).
    > When done, announce "Phase {i} execution complete."
 
 5. Wait for the agent to complete
