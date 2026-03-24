@@ -1,86 +1,210 @@
 ---
 name: ralph-execute
-description: Autonomous execution pipeline. Runs /execute, /verify, /verify-docs, pre-commit, and commits per phase. Usage: /ralph-execute [max-phases=5] <plan-file>
+description: Autonomous execution pipeline. Parses plan phases, executes each via agents (execute → verify → docs → commit), then runs drift review between phases. Usage: /ralph-execute [review-iterations=5] <plan-file>
 disable-model-invocation: true
-argument-hint: "[max-phases=5] <plan-file>"
+argument-hint: "[review-iterations=5] <plan-file>"
 ---
 
 # Ralph Execute: Autonomous Implementation Pipeline
 
 Parse arguments:
-- If one argument: max_phases=5, plan_file=$ARGUMENTS[0]
-- If two arguments: max_phases=$ARGUMENTS[0], plan_file=$ARGUMENTS[1]
+- If one argument: review_iterations=5, plan_file=$ARGUMENTS[0]
+- If two arguments: review_iterations=$ARGUMENTS[0], plan_file=$ARGUMENTS[1]
+
+## MANDATORY COMPLETION RULE
+
+**YOU MUST PROCESS EVERY PHASE in the plan.** Do NOT stop early because "the code looks complete", because "remaining phases are trivial", or for any other reason. The ONLY valid reasons to stop are:
+1. All phases in the plan have been processed
+2. A verification failure that cannot be fixed (after retry)
+3. An unrecoverable error
 
 ## Setup
 
-Read the plan file to understand the scope. Identify the major phases/batches of work.
-
-Do NOT create all tasks upfront — create tasks dynamically as each phase starts, since the number of phases depends on the plan's scope and how the execute process batches the work.
+1. Read the plan file and extract all phases by finding `## Phase N: Title` headings.
+2. Count the total number of phases (P).
+3. Create a top-level task "Ralph Execute: {P} phases from {plan_file}" and set to IN_PROGRESS.
+4. Announce: **"=== RALPH EXECUTE: Found {P} phases. Review iterations per phase: {review_iterations} ==="**
+5. Do NOT create phase sub-tasks upfront — create them as each phase begins.
 
 ## Execution Loop
 
-For each phase (1 to max_phases):
+For each phase i = 1, 2, 3, ..., P (you MUST go in order, one at a time):
 
-### Step A: Execute
-1. Create task "Phase {i}: Execute batch" and set to IN_PROGRESS
-2. Announce: "Starting phase {i} of {max_phases}"
-3. Read `.claude/skills/execute/SKILL.md` and execute its process on {plan_file}
-   - The execute process runs in batches of 3 tasks by default
-   - After each batch it reports "Ready for feedback."
-   - When you see "Ready for feedback", review what was implemented, then provide "continue" to trigger the next batch
-   - Keep running batches within this phase until either:
-     a. The execute process says "Implementation complete and verified. Ready for final review." — this is the last phase
-     b. A natural phase boundary is reached (all related tasks in a group are done)
-4. Update task to COMPLETED
+### Step A: Execute Phase (via Agent)
 
-### Step B: Verify Implementation
-5. Create task "Phase {i}: Verify implementation" and set to IN_PROGRESS
-6. Read `.claude/skills/verify/SKILL.md` and execute its full verification process
-7. Parse the Verification Report:
-   - If **all checks pass**: Update task to COMPLETED, proceed
-   - If **failures found**:
-     - Attempt to fix the issues identified in the report
-     - Re-execute the verification process from `.claude/skills/verify/SKILL.md` once more
-     - If still failing: STOP and report "Phase {i} verification failed. Issues: {list}"
-8. Update task to COMPLETED
+1. Create task "Phase {i}/{P}: Execute — {phase_title}" and set to IN_PROGRESS
+2. Announce: **"=== PHASE {i} OF {P}: EXECUTE — {phase_title} ==="**
+3. Extract the tasks and verification steps for ONLY this phase from the plan
+4. Spawn an Agent with subagent_type "general-purpose" and this prompt:
 
-### Step C: Verify Documentation
-9. Create task "Phase {i}: Verify documentation" and set to IN_PROGRESS
-10. Read `.claude/skills/verify-docs/SKILL.md` and execute its documentation verification process
-11. Review the Documentation & Visuals Report
+   > You are executing Phase {i} of an implementation plan.
+   >
+   > Plan file: {plan_file}
+   >
+   > Read the skill file `.claude/skills/execute/SKILL.md` and follow its process to implement ONLY the following phase:
+   >
+   > {paste the full phase content here, including tasks and verification subsection}
+   >
+   > IMPORTANT: Do NOT implement tasks from any other phase. ONLY implement the tasks listed above.
+   > When done, announce "Phase {i} execution complete."
+
+5. Wait for the agent to complete
+6. Update task to COMPLETED
+
+### Step B: Verify Implementation (via Agent)
+
+7. Create task "Phase {i}/{P}: Verify implementation" and set to IN_PROGRESS
+8. Announce: **"=== PHASE {i} OF {P}: VERIFY ==="**
+9. Spawn an Agent with subagent_type "general-purpose" and this prompt:
+
+   > You are verifying the implementation of Phase {i} of a plan.
+   >
+   > Plan file: {plan_file}
+   >
+   > Read the skill file `.claude/skills/verify/SKILL.md` and execute its full verification process.
+   > Focus on whether Phase {i} was implemented correctly, but also check for regressions in earlier phases.
+   >
+   > If verification FAILS:
+   > - Attempt to fix the issues you find
+   > - Re-run the verification once more
+   > - Report the final result clearly: "VERIFICATION PASSED" or "VERIFICATION FAILED: {issues}"
+
+10. Wait for the agent to complete
+11. Parse the result:
+    - If **PASSED**: Update task to COMPLETED, proceed
+    - If **FAILED after retry**: Update task to FAILED, update top-level task to FAILED, STOP and report: "Phase {i} verification failed after retry. Issues: {list}"
 12. Update task to COMPLETED
-    (Documentation issues are warnings, not blockers — note them but proceed)
+
+### Step C: Documentation Pipeline (via Agents)
+
+This step has 4 sub-steps. The review runs always; the fixes run only if the review flags issues.
+
+#### C1: Review Docs (via Agent — always runs)
+
+13. Create task "Phase {i}/{P}: Review docs" and set to IN_PROGRESS
+14. Announce: **"=== PHASE {i} OF {P}: REVIEW DOCS ==="**
+15. Spawn an Agent with subagent_type "general-purpose" and this prompt:
+
+    > You are reviewing documentation after Phase {i} of an implementation.
+    >
+    > Read the skill file `.claude/skills/review-docs/SKILL.md` and execute its full drift analysis.
+    > Output the Documentation Drift Report with tagged actions: [FIX-DOCS], [GENERATE-DIAGRAMS], [GENERATE-IMAGES].
+
+16. Wait for the agent to complete
+17. Save the drift report output for the next sub-steps
+18. Update task to COMPLETED
+
+#### C2: Fix Docs (via Agent — only if [FIX-DOCS] items found)
+
+19. If the drift report contains **[FIX-DOCS]** items:
+    - Create task "Phase {i}/{P}: Fix docs" and set to IN_PROGRESS
+    - Spawn an Agent with subagent_type "general-purpose" and this prompt:
+
+      > You are fixing text documentation after Phase {i} of an implementation.
+      >
+      > Read the skill file `.claude/skills/fix-docs/SKILL.md` and apply fixes for these findings:
+      >
+      > {paste the [FIX-DOCS] items from the drift report}
+
+    - Wait for the agent to complete
+    - Update task to COMPLETED
+
+#### C3: Generate Diagrams (via Agent — only if [GENERATE-DIAGRAMS] items found)
+
+20. If the drift report contains **[GENERATE-DIAGRAMS]** items:
+    - Create task "Phase {i}/{P}: Generate diagrams" and set to IN_PROGRESS
+    - Spawn an Agent with subagent_type "general-purpose" and this prompt:
+
+      > You are updating architecture diagrams after Phase {i} of an implementation.
+      >
+      > Read the skill file `.claude/skills/generate-diagrams/SKILL.md` and update diagrams for these findings:
+      >
+      > {paste the [GENERATE-DIAGRAMS] items from the drift report}
+
+    - Wait for the agent to complete
+    - Update task to COMPLETED
+
+#### C4: Generate Images (via Agent — only if [GENERATE-IMAGES] items found)
+
+21. If the drift report contains **[GENERATE-IMAGES]** items:
+    - Create task "Phase {i}/{P}: Generate images" and set to IN_PROGRESS
+    - Spawn an Agent with subagent_type "general-purpose" and this prompt:
+
+      > You are generating AI documentation images after Phase {i} of an implementation.
+      >
+      > Read the skill file `.claude/skills/generate-images/SKILL.md` and generate images for these findings:
+      >
+      > {paste the [GENERATE-IMAGES] items from the drift report}
+
+    - Wait for the agent to complete
+    - Update task to COMPLETED
+
+Documentation issues from C2-C4 are warnings, not blockers — note them but proceed to Step D.
 
 ### Step D: Pre-commit & Commit
-13. Create task "Phase {i}: Pre-commit & commit" and set to IN_PROGRESS
-14. Run: `uv run pre-commit run --all-files`
+
+18. Create task "Phase {i}/{P}: Pre-commit & commit" and set to IN_PROGRESS
+19. Announce: **"=== PHASE {i} OF {P}: COMMIT ==="**
+20. Run: `uv run pre-commit run --all-files`
     - If pre-commit modifies files, run it again to confirm clean
     - If pre-commit fails on the second run, STOP and report
-15. Stage changed files safely:
+21. Stage changed files safely:
     - Run `git diff --name-only` and `git ls-files --others --exclude-standard` to list changes
     - Review the list — NEVER stage `.env`, credentials, or large binaries
     - Stage files by name: `git add <file1> <file2> ...`
-    - If unsure about a file, skip it and note it in the commit message
-16. Create a semantic commit message:
+22. Create a semantic commit:
     - Read the git diff to understand what changed
     - Use conventional commit format: `feat:`, `fix:`, `refactor:`, etc.
-    - Include "Phase {i}/{max_phases}" in the commit body
+    - Include `Phase {i}/{P}: {phase_title}` in the commit body
     - End with `Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>`
-17. Run: `git commit -m "<message>"`
-18. Update task to COMPLETED
+23. Run: `git commit -m "<message>"` using a HEREDOC for the message
+24. Update task to COMPLETED
 
-### Step E: Check Completion
-19. If the execute process indicated all plan tasks are complete:
-    - Announce: "All phases complete. {total_phases} commits created."
+### Step E: Drift Review (via /ralph-review)
+
+25. Create task "Phase {i}/{P}: Drift review ({review_iterations} iterations)" and set to IN_PROGRESS
+26. Announce: **"=== PHASE {i} OF {P}: DRIFT REVIEW ({review_iterations} iterations) ==="**
+27. Read `.claude/skills/ralph-review/SKILL.md` and execute its full review process with {review_iterations} iterations on {plan_file}
+    - This detects whether the plan still makes sense given what was just implemented
+    - The plan may be updated if drift is detected
+28. Wait for all review iterations to complete
+29. Update task to COMPLETED
+
+### Step F: Re-read Plan & Continue
+
+30. Re-read {plan_file} — it may have been modified by the drift review
+31. Re-extract the remaining phases (the phase structure may have shifted)
+32. If this is the LAST phase (i == P):
+    - Update top-level task to COMPLETED
+    - Announce: **"=== ALL {P} PHASES COMPLETE ==="**
+    - Output the final summary table (see below)
     - List all commits created during this run
-    - **STOP HERE**
-20. Otherwise: proceed to next phase
+    - **STOP — all phases done**
+33. Otherwise: **YOU MUST proceed to phase {i+1}. Do NOT stop here.**
+
+## Summary Table
+
+After completion (or failure), output:
+
+```
+| Phase | Title              | Execute | Verify | Docs Review | Fix Docs | Diagrams | Images | Commit | Drift Review        |
+|-------|--------------------|---------|--------|-------------|----------|----------|--------|--------|---------------------|
+| 1/P   | Set up models      | Done    | PASSED | 2 issues    | Fixed    | Skipped  | Skipped| abc123 | APPROVED (iter 2)   |
+| 2/P   | API endpoints      | Done    | PASSED | Clean       | Skipped  | Updated  | Skipped| def456 | REQUEST CHANGES (5) |
+| 3/P   | ...                | ...     | ...    | ...         | ...      | ...      | ...    | ...    | ...                 |
+```
 
 ## Important Rules
-- NEVER skip verification steps — always run verify after execute
+
+**COMPLETION IS NON-NEGOTIABLE.** Every phase in the plan MUST be processed. The user expects all phases to run.
+
+- NEVER skip a phase — every phase must go through Steps A through F
+- NEVER skip verification — always verify after execute
+- NEVER skip the drift review — it catches plan drift between phases
 - NEVER commit without running pre-commit first
-- If verification fails twice, STOP — don't force through
+- NEVER combine phases — each phase is a separate execute+verify+commit+review cycle
+- If verification fails twice, STOP — don't force through broken code
+- Always announce phase transitions prominently: **"=== PHASE {i} OF {P}: ... ==="**
 - Always use semantic commit messages based on actual changes
-- Announce phase transitions clearly: "Phase 2 of 5: Starting execution"
-- At the end, show a summary table of all phases, tasks, and commit hashes
-- If max_phases is reached but plan isn't complete, announce remaining work
+- If an agent returns an error, stop and report it clearly
+- The drift review may modify the plan — always re-read the plan after the review step
