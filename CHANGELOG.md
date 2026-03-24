@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/ghiret/python-template/compare/v0.2.0...v0.3.0) (2026-03-24)
+
+
+### Features
+
+* make execution fully autonomous — no feedback pauses ([6e0aca0](https://github.com/ghiret/python-template/commit/6e0aca02a4017e7335294555b2d9421f2512bd74))
+* redesign ralph skills with subagents, phase parsing, and doc pipeline ([a6de681](https://github.com/ghiret/python-template/commit/a6de681457316537f343eaebecdc6b75df19a642))
+
 ## [0.2.0](https://github.com/ghiret/python-template/compare/v0.1.0...v0.2.0) (2026-03-18)
 
 
