@@ -1,8 +1,8 @@
 ---
 name: ralph-execute
-description: Autonomous execution pipeline. Parses plan phases, executes each via agents (execute → verify → docs → commit), then runs drift review between phases. Usage: /ralph-execute [review-iterations=5] <plan-file>
+description: "Autonomous execution pipeline. Parses plan phases, executes selected phases via agents (execute → verify → docs → commit → drift review). Usage: /ralph-execute [review-iterations=5] [phase=N|phases=N-M|phases=N,M] plan-file"
 disable-model-invocation: true
-argument-hint: "[review-iterations=5] <plan-file>"
+argument-hint: "[review-iterations=5] [phase=N|phases=N-M|phases=N,M] <plan-file>"
 ---
 
 # Ralph Execute: Autonomous Implementation Pipeline
@@ -10,11 +10,32 @@ argument-hint: "[review-iterations=5] <plan-file>"
 Parse arguments:
 - If one argument: review_iterations=5, plan_file=$ARGUMENTS[0]
 - If two arguments: review_iterations=$ARGUMENTS[0], plan_file=$ARGUMENTS[1]
+- Phase selection is optional:
+  - `phase=N` may appear before the plan file: `/ralph-execute phase=2 agent_docs/plans/my-plan.md`
+  - `phase N` may appear before the plan file: `/ralph-execute phase 2 agent_docs/plans/my-plan.md`
+  - `phases=N-M` runs an inclusive range: `/ralph-execute phases=2-4 agent_docs/plans/my-plan.md`
+  - `phases=N,M,K` runs an explicit ordered list: `/ralph-execute phases=1,3 agent_docs/plans/my-plan.md`
+  - A review iteration count may still come first: `/ralph-execute 3 phase=2 agent_docs/plans/my-plan.md`
+- If no phase selector is provided, selected_phases=ALL.
+
+## Skill Path Resolution
+
+When reading companion skills, prefer `.agents/skills/<name>/SKILL.md` if it exists
+(Codex layout). Otherwise use `.claude/skills/<name>/SKILL.md` (Claude layout).
 
 ## MANDATORY COMPLETION RULE
 
-**YOU MUST PROCESS EVERY PHASE in the plan.** Do NOT stop early because "the code looks complete", because "remaining phases are trivial", or for any other reason. The ONLY valid reasons to stop are:
-1. All phases in the plan have been processed
+**YOU MUST PROCESS THE REQUESTED SCOPE IN STRICT PHASE CYCLES.**
+
+- If selected_phases=ALL, process every phase in the plan. Do NOT stop early because "the code looks complete", because "remaining phases are trivial", or for any other reason.
+- If selected_phases is a subset, process exactly those phases and no other phases.
+- For each selected phase, run the complete cycle in this order: Execute → Verify → Docs → Commit → Drift Review → Re-read Plan.
+- Execute and Verify are deliberately separate repeated passes for every selected phase. LLM agents are fallible: the execute agent can miss tasks, overreach, or introduce regressions, so the verify agent MUST independently check the phase before docs, commit, or drift review proceed.
+- Do NOT run docs, commit, or drift review for a phase until that same phase has passed execution and verification.
+- Do NOT advance to the next selected phase until the current phase has completed the full cycle, including drift review.
+
+The ONLY valid reasons to stop are:
+1. The requested scope has been processed
 2. A verification failure that cannot be fixed (after retry)
 3. An unrecoverable error
 
@@ -22,13 +43,28 @@ Parse arguments:
 
 1. Read the plan file and extract all phases by finding `## Phase N: Title` headings.
 2. Count the total number of phases (P).
-3. Create a top-level task "Ralph Execute: {P} phases from {plan_file}" and set to IN_PROGRESS.
-4. Announce: **"=== RALPH EXECUTE: Found {P} phases. Review iterations per phase: {review_iterations} ==="**
-5. Do NOT create phase sub-tasks upfront — create them as each phase begins.
+3. Resolve the requested scope:
+   - If no selector is provided: selected_phases = [1, 2, ..., P]
+   - If `phase=N` or `phase N` is provided: selected_phases = [N]
+   - If `phases=N-M` is provided: selected_phases = [N, N+1, ..., M]
+   - If `phases=N,M,K` is provided: selected_phases = [N, M, K] in the requested order
+   - Reject duplicate, missing, non-numeric, descending range, or out-of-range phase selectors. STOP and report the valid phase range and phase titles.
+4. Create a top-level task:
+   - All phases: "Ralph Execute: {P} phases from {plan_file}"
+   - Selected phases: "Ralph Execute: phases {selected_phases} of {P} from {plan_file}"
+5. Announce one of:
+   - **"=== RALPH EXECUTE: Found {P} phases. Processing ALL phases. Review iterations per phase: {review_iterations} ==="**
+   - **"=== RALPH EXECUTE: Found {P} phases. Processing ONLY selected phases {selected_phases}. Review iterations per phase: {review_iterations} ==="**
+6. Do NOT create phase sub-tasks upfront — create them as each phase begins.
 
 ## Execution Loop
 
-For each phase i = 1, 2, 3, ..., P (you MUST go in order, one at a time):
+For each phase i in selected_phases (you MUST go in order, one at a time):
+
+Every selected phase MUST repeat Step A and Step B as distinct passes:
+1. Execute Phase i with the execute companion skill.
+2. Verify Phase i with the verify companion skill.
+3. Only after verification passes, continue to docs, commit, drift review, and the next selected phase.
 
 ### Step A: Execute Phase (via Agent)
 
@@ -41,7 +77,7 @@ For each phase i = 1, 2, 3, ..., P (you MUST go in order, one at a time):
    >
    > Plan file: {plan_file}
    >
-   > Read the skill file `.claude/skills/execute/SKILL.md` and follow its process to implement ONLY the following phase:
+   > Read the `execute` companion skill using the Skill Path Resolution rule above and follow its process to implement ONLY the following phase:
    >
    > {paste the full phase content here, including tasks and verification subsection}
    >
@@ -64,7 +100,7 @@ For each phase i = 1, 2, 3, ..., P (you MUST go in order, one at a time):
    >
    > Plan file: {plan_file}
    >
-   > Read the skill file `.claude/skills/verify/SKILL.md` and execute its full verification process.
+   > Read the `verify` companion skill using the Skill Path Resolution rule above and execute its full verification process.
    > Focus on whether Phase {i} was implemented correctly, but also check for regressions in earlier phases.
    >
    > If verification FAILS:
@@ -90,7 +126,7 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
 
     > You are reviewing documentation after Phase {i} of an implementation.
     >
-    > Read the skill file `.claude/skills/review-docs/SKILL.md` and execute its full drift analysis.
+    > Read the `review-docs` companion skill using the Skill Path Resolution rule above and execute its full drift analysis.
     > Output the Documentation Drift Report with tagged actions: [FIX-DOCS], [GENERATE-DIAGRAMS], [GENERATE-IMAGES].
 
 16. Wait for the agent to complete
@@ -105,7 +141,7 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
 
       > You are fixing text documentation after Phase {i} of an implementation.
       >
-      > Read the skill file `.claude/skills/fix-docs/SKILL.md` and apply fixes for these findings:
+      > Read the `fix-docs` companion skill using the Skill Path Resolution rule above and apply fixes for these findings:
       >
       > {paste the [FIX-DOCS] items from the drift report}
 
@@ -120,7 +156,7 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
 
       > You are updating architecture diagrams after Phase {i} of an implementation.
       >
-      > Read the skill file `.claude/skills/generate-diagrams/SKILL.md` and update diagrams for these findings:
+      > Read the `generate-diagrams` companion skill using the Skill Path Resolution rule above and update diagrams for these findings:
       >
       > {paste the [GENERATE-DIAGRAMS] items from the drift report}
 
@@ -135,7 +171,7 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
 
       > You are generating AI documentation images after Phase {i} of an implementation.
       >
-      > Read the skill file `.claude/skills/generate-images/SKILL.md` and generate images for these findings:
+      > Read the `generate-images` companion skill using the Skill Path Resolution rule above and generate images for these findings:
       >
       > {paste the [GENERATE-IMAGES] items from the drift report}
 
@@ -159,6 +195,7 @@ Documentation issues from C2-C4 are warnings, not blockers — note them but pro
     - Read the git diff to understand what changed
     - Use conventional commit format: `feat:`, `fix:`, `refactor:`, etc.
     - Include `Phase {i}/{P}: {phase_title}` in the commit body
+    - If selected_phases is not ALL, include `Selected-phase Ralph run: requested phases {selected_phases} of {P}` in the commit body
     - End with `Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>`
 23. Run: `git commit -m "<message>"` using a HEREDOC for the message
 24. Update task to COMPLETED
@@ -167,7 +204,7 @@ Documentation issues from C2-C4 are warnings, not blockers — note them but pro
 
 25. Create task "Phase {i}/{P}: Drift review ({review_iterations} iterations)" and set to IN_PROGRESS
 26. Announce: **"=== PHASE {i} OF {P}: DRIFT REVIEW ({review_iterations} iterations) ==="**
-27. Read `.claude/skills/ralph-review/SKILL.md` and execute its full review process with {review_iterations} iterations on {plan_file}
+27. Read the `ralph-review` companion skill using the Skill Path Resolution rule above and execute its full review process with {review_iterations} iterations on {plan_file}
     - This detects whether the plan still makes sense given what was just implemented
     - The plan may be updated if drift is detected
 28. Wait for all review iterations to complete
@@ -177,13 +214,19 @@ Documentation issues from C2-C4 are warnings, not blockers — note them but pro
 
 30. Re-read {plan_file} — it may have been modified by the drift review
 31. Re-extract the remaining phases (the phase structure may have shifted)
-32. If this is the LAST phase (i == P):
+32. If selected_phases is not ALL and this is the LAST selected phase:
+    - Update top-level task to COMPLETED
+    - Announce: **"=== REQUESTED PHASES {selected_phases} COMPLETE ==="**
+    - Output the final summary table for the requested phase(s)
+    - List all commits created during this run
+    - **STOP — requested selected phases done**
+33. If this is the LAST phase (i == P):
     - Update top-level task to COMPLETED
     - Announce: **"=== ALL {P} PHASES COMPLETE ==="**
     - Output the final summary table (see below)
     - List all commits created during this run
     - **STOP — all phases done**
-33. Otherwise: **YOU MUST proceed to phase {i+1}. Do NOT stop here.**
+34. Otherwise: **YOU MUST proceed to the next selected phase. Do NOT stop here.**
 
 ## Summary Table
 
@@ -199,9 +242,12 @@ After completion (or failure), output:
 
 ## Important Rules
 
-**COMPLETION IS NON-NEGOTIABLE.** Every phase in the plan MUST be processed. The user expects all phases to run.
+**COMPLETION IS NON-NEGOTIABLE.** The requested scope MUST be processed. Without a phase selector, every phase in the plan MUST be processed. With a phase selector, exactly the selected phase(s) MUST be processed.
 
-- NEVER skip a phase — every phase must go through Steps A through F
+- NEVER skip a requested phase — each selected phase must go through Steps A through F
+- NEVER process unrequested phases in selected-phase mode
+- NEVER reorder the per-phase cycle: execute and verify first, then docs, then commit, then drift review
+- NEVER treat execution alone as sufficient — verification is a separate pass because LLM agents are fallible
 - NEVER skip verification — always verify after execute
 - NEVER skip the drift review — it catches plan drift between phases
 - NEVER commit without running pre-commit first

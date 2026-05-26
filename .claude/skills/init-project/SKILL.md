@@ -44,7 +44,7 @@ license = {text = "<license>"}
 #### Directory Structure
 Create if not exists:
 ```
-plans/
+agent_docs/plans/
 docs/
 docs/scratchpads/
 ```
@@ -103,7 +103,7 @@ repo_url: https://github.com/<username>/<repo>
 ## Best Practices
 
 1. **Don't overwrite user changes**: If files appear modified, ask before overwriting
-2. **Preserve template features**: Keep the .claude/ skills and commands intact
+2. **Preserve template features**: Keep the .claude/ and .agents/ skills and commands intact
 3. **Validate before applying**: Show the user what will change before making edits
 4. **Create backup checkpoint**: Suggest user commits current state before initialization
 

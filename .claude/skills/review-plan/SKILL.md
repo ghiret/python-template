@@ -64,7 +64,8 @@ Analyze the plan against these four specific criteria:
     ```
 * **Fail if:** Tasks are in a flat list without phase groupings.
 * **Fail if:** Phase headings don't follow the `## Phase N: Title` pattern (e.g., using `### Step 1` or `## Part A`).
-* **Action:** "Plan must be structured into phases using `## Phase N: Title` headings with `- [ ]` task checkboxes and `### Verification` subsections. This is required for autonomous execution with `/ralph-execute`."
+* **Fail if:** The plan is written as HTML or HTML-like markup (for example `<h2>Phase 1</h2>`, `<section>`, `<ol>`, `<li>`) instead of markdown phase headings and task checkboxes.
+* **Action:** "Plan must be structured into markdown phases using `## Phase N: Title` headings with `- [ ]` task checkboxes and `### Verification` subsections. Convert HTML or unstructured plans into this format. This is required for autonomous execution with `/ralph-execute`."
 
 ### Step 3: The Verdict
 
