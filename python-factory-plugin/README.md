@@ -28,6 +28,7 @@ All skills are namespaced as `/python-factory:<skill-name>` when installed as a 
 | execute | `/python-factory:execute` | Execute HTML or Markdown implementation plans in batches |
 | review-plan | `/python-factory:review-plan` | Architect review: redundancy, architecture, testability, phase structure, and test budget checks |
 | fix-plan | `/python-factory:fix-plan` | Surgical fixes to plans based on review feedback |
+| html-artifact | `/python-factory:html-artifact` | Create self-contained HTML artifacts for explorations, explainers, prototypes, and tools |
 | verify-tests | `/python-factory:verify-tests` | Fast test-quality audit before full verification |
 | verify | `/python-factory:verify` | Post-execution QA: plan compliance, redundancy audit, tests |
 | review-docs | `/python-factory:review-docs` | Detect documentation drift in text, diagrams, and images |
@@ -46,6 +47,8 @@ All skills are namespaced as `/python-factory:<skill-name>` when installed as a 
 - Verification reports: `agent_docs/reports/verify/*.html`
 - Documentation drift reports: `agent_docs/reports/drift/*.html`
 - Unit tests should be fast; no unit test should exceed 60 seconds unless reclassified as a marked long-running integration/e2e/load test.
+
+`generate-diagrams` supports both Python `diagrams` PNG output for complex architecture diagrams and inline SVG inside self-contained HTML artifacts for smaller conceptual diagrams.
 
 ## Agents
 

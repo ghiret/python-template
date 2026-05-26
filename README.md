@@ -64,6 +64,7 @@ git push origin main
 │   ├── commands/         # Command wrappers
 │   └── settings.json     # Permissions and hook config
 ├── .agents/              # Codex-compatible skills
+├── AGENTS.md             # Codex project guidance
 ├── python-factory-plugin/ # Installable plugin for other repos
 ├── .devcontainer/        # DevContainer configuration
 ├── src/                  # Source code
@@ -106,7 +107,7 @@ claude
 The repo supports both runtimes:
 
 - `.claude/skills/` uses Claude-compatible frontmatter, including `disable-model-invocation` for manually triggered workflow skills.
-- `.agents/skills/` uses Codex-compatible frontmatter and `agents/openai.yaml` policy metadata.
+- `.agents/skills/` keeps Codex-compatible copies of the same skill bodies; tests verify they stay synchronized with `.claude/skills/`.
 - `python-factory-plugin/skills/` carries the Claude-compatible plugin copy.
 
 ### Skill Workflow (The "Software Factory")
@@ -120,6 +121,8 @@ Every feature follows this lifecycle:
 5. **Document** — Audit with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed
 
 Plans and reports follow `.claude/skills/_shared/html-conventions.md`. Tests follow `.claude/skills/_shared/testing-conventions.md`: unit tests should be fast, no unit test may exceed 60 seconds, and long integration/e2e tests must be marked separately.
+
+Use `/html-artifact` for self-contained browser-readable artifacts that are not executable plans or standard reports, such as exploration grids, PR explainers, design prototypes, and throwaway editors.
 
 ### Autonomous Workflow (Ralph)
 
@@ -158,11 +161,12 @@ For fully autonomous development with built-in review loops and per-phase commit
 curl -fsSL https://raw.githubusercontent.com/ghiret/python-template/main/install.sh | bash
 ```
 
-This installs the Claude-compatible skills, 3 agents, 3 hooks, 3 rules, and command wrappers into your project's `.claude/` directory.
+This installs the Claude-compatible skills, Codex-compatible skill copies, 3 agents, 3 hooks, 3 rules, and command wrappers into your project.
 
 **What it does:**
 - Detects and removes old-named skills (`executing-plans`, `verifying-implementation`, etc.)
 - Copies new skills by name — your custom skills are untouched
+- Copies Codex-compatible skills into `.agents/skills/`
 - Preserves `settings.local.json` and any personal files in `.claude/`
 - If `settings.json` already exists, saves the new one as `settings.json.new` for manual merge
 - Warns if `jq` is missing (required for hooks)
@@ -170,7 +174,7 @@ This installs the Claude-compatible skills, 3 agents, 3 hooks, 3 rules, and comm
 **What it does NOT do:**
 - Delete your custom skills, commands, or agents
 - Overwrite `settings.local.json`
-- Touch files outside `.claude/`
+- Touch files outside `.claude/` and `.agents/`
 
 ### Install as a plugin (no changes to your repo)
 

@@ -24,6 +24,8 @@ You must adhere to this lifecycle for every feature request:
 4. **QUALITY ASSURANCE** — Verify the branch before merging. Run `/verify`.
 5. **DOCUMENTATION** — Audit docs with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed.
 
+Use `/html-artifact` for self-contained browser-readable artifacts such as exploration grids, PR explainers, design prototypes, reports, and throwaway editors.
+
 ## ARTIFACT & TESTING CONVENTIONS
 - HTML is the preferred artifact format for plans and reports; Markdown remains supported for existing workflows.
 - Agent-produced reports live under `./agent_docs/reports/` and are not committed by default.

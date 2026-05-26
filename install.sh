@@ -122,7 +122,7 @@ else
   done
 
   # Create directories
-  mkdir -p .claude/skills .claude/agents .claude/hooks .claude/rules .claude/commands
+  mkdir -p .claude/skills .claude/agents .claude/hooks .claude/rules .claude/commands .agents/skills
 
   # Copy skills
   echo "Installing skills..."
@@ -130,6 +130,16 @@ else
     skill_name=$(basename "$skill_dir")
     rm -rf ".claude/skills/$skill_name"
     cp -r "$skill_dir" ".claude/skills/$skill_name"
+    echo "  $skill_name"
+  done
+
+  # Copy Codex-compatible skill files separately. Codex validators and package
+  # builders are safest when .agents/skills contains real directories.
+  echo "Installing Codex skills..."
+  for skill_dir in "$SRC/.agents/skills"/*/; do
+    skill_name=$(basename "$skill_dir")
+    rm -rf ".agents/skills/$skill_name"
+    cp -r "$skill_dir" ".agents/skills/$skill_name"
     echo "  $skill_name"
   done
 
@@ -182,10 +192,12 @@ else
   echo ""
   echo "Verification:"
   SKILL_COUNT=$(ls -d .claude/skills/*/ 2>/dev/null | wc -l)
+  CODEX_SKILL_COUNT=$(ls -d .agents/skills/*/ 2>/dev/null | wc -l)
   AGENT_COUNT=$(ls .claude/agents/*.md 2>/dev/null | wc -l)
   HOOK_COUNT=$(ls .claude/hooks/*.sh 2>/dev/null | wc -l)
   RULE_COUNT=$(ls .claude/rules/*.md 2>/dev/null | wc -l)
   echo "  Skills: $SKILL_COUNT"
+  echo "  Codex skills: $CODEX_SKILL_COUNT"
   echo "  Agents: $AGENT_COUNT"
   echo "  Hooks:  $HOOK_COUNT"
   echo "  Rules:  $RULE_COUNT"
@@ -204,6 +216,7 @@ else
   echo "  /review-plan    - Architect review of implementation plans"
   echo "  /fix-plan       - Fix plans based on review feedback"
   echo "  /execute        - Execute plans in batches"
+  echo "  /html-artifact  - Create self-contained HTML artifacts"
   echo "  /verify-tests   - Fast test-quality audit"
   echo "  /verify         - Post-execution QA"
   echo "  /review-docs    - Detect documentation drift"
