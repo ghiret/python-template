@@ -9,7 +9,7 @@ if [ -n "$MODIFIED" ]; then
 fi
 
 # Detect active implementation plan
-ACTIVE_PLAN=$(ls -t agent_docs/plans/*.md 2>/dev/null | head -1)
+ACTIVE_PLAN=$(ls -t agent_docs/plans/*.html agent_docs/plans/*.md 2>/dev/null | head -1)
 if [ -n "$ACTIVE_PLAN" ]; then
   echo "Most recent plan: $ACTIVE_PLAN"
 fi

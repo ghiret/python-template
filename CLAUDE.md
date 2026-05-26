@@ -11,17 +11,24 @@ If this is a freshly cloned template, run `/init-project` to configure:
 **CRITICAL:** This environment is ephemeral. To prevent data loss:
 1. **Work Directory:** ONLY write files inside the current project root (`.`).
 2. **No Global Paths:** DO NOT write to `~`, `/tmp`, or `/var`.
-3. **Plan Storage:** Store all implementation plans in `./agent_docs/plans/`.
+3. **Plan Storage:** Store implementation plans in `./agent_docs/plans/`.
 4. **Scratchpads:** Store thought processes/checklists in `./docs/scratchpads/`.
 5. **Agent Dumps:** Use `./agent_docs/` for research, API docs, or temporary references (untracked).
 
 ## SKILL WORKFLOW (The "Software Factory")
 You must adhere to this lifecycle for every feature request:
 
-1. **ARCHITECTURE** — Create a markdown plan in `./agent_docs/plans/`. Run `/review-plan` to check against existing code.
+1. **ARCHITECTURE** — Create an HTML plan in `./agent_docs/plans/` following `.claude/skills/_shared/html-conventions.md`. Markdown plans still work. Run `/review-plan` to check against existing code.
 2. **EXECUTION** — Implement the plan in batches. Run `/execute`.
-3. **QUALITY ASSURANCE** — Verify the branch before merging. Run `/verify`.
-4. **DOCUMENTATION** — Audit docs with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed.
+3. **TEST QUALITY** — Audit tests before full verification. Run `/verify-tests`.
+4. **QUALITY ASSURANCE** — Verify the branch before merging. Run `/verify`.
+5. **DOCUMENTATION** — Audit docs with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed.
+
+## ARTIFACT & TESTING CONVENTIONS
+- HTML is the preferred artifact format for plans and reports; Markdown remains supported for existing workflows.
+- Agent-produced reports live under `./agent_docs/reports/` and are not committed by default.
+- Unit tests should be fast and deterministic. No unit test may take longer than 60 seconds.
+- Long integration, e2e, load, or soak tests must be explicitly marked and kept separate from the fast unit-test path.
 
 ## CODING STANDARDS
 - **Package Manager:** Use `uv` for all Python dependency management.

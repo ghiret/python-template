@@ -13,10 +13,16 @@ Load plan, review critically, execute ALL tasks to completion autonomously.
 
 **Announce at start:** "I'm using the execute skill to implement this plan."
 
+Before executing, read the shared conventions:
+- `_shared/html-conventions.md` for HTML vs Markdown plan parsing
+- `_shared/testing-conventions.md` for test speed budgets and slow-test classification
+
 ## The Process
 
 ### Step 1: Load and Review Plan
-1. Read plan file
+1. Read plan file.
+   - For `.html` plans, parse phases from `<section data-phase="N" data-title="...">`, tasks from `<ul class="tasks"><li>...`, and verification from `<section class="verification">`.
+   - For `.md` plans, parse legacy `## Phase N: Title`, `- [ ]` tasks, and `### Verification` sections.
 2. Review critically - identify any questions or concerns about the plan
 3. If concerns are **blocking** (cannot proceed without clarification): raise them and stop
 4. If concerns are **non-blocking** (minor, can make a reasonable decision): note them and proceed
@@ -31,13 +37,14 @@ For each task:
 3. Run verifications as specified
 4. Run the tests: unit test, integration tests, frontend tests, hypothesis based tests
 5. Fix all failing tests
-6. Ask yourself, have I tested this enough? Are the tests that I have written good? Are some of them redundant? Can I write better tests? And think hard about how to improve the tests, then implement the results of this thinking.
-7. Run the tests: unit test, integration tests, frontend tests, hypothesis based tests
-8. Fix all failing tests
-9. Ask yourself, have I tested this enough? Are the tests that I have written good? Are some of them redundant? Can I write better tests? And think hard about how to improve the tests, then implement the results of this thinking.
-10. Run the tests: unit test, integration tests, frontend tests, hypothesis based tests
-11. Fix all failing tests
-12. Mark as completed
+6. Apply the testing budget: unit tests should be fast, no unit test may exceed 60 seconds, and long integration/e2e tests must be explicitly marked instead of disguised as unit tests.
+7. Ask yourself, have I tested this enough? Are the tests that I have written good? Are some of them redundant or too slow? Can I write better, faster tests? And think hard about how to improve the tests, then implement the results of this thinking.
+8. Run the tests: unit test, integration tests, frontend tests, hypothesis based tests
+9. Fix all failing tests
+10. Ask yourself again whether the tests are useful, bounded, and fast. Remove test bloat, sleeps, unbounded generated data, and unnecessary broad snapshots.
+11. Run the tests: unit test, integration tests, frontend tests, hypothesis based tests
+12. Fix all failing tests
+13. Mark as completed
 
 ### Step 3: Continue to Next Batch
 **Do NOT stop for feedback.** Immediately proceed to the next batch of tasks.
@@ -68,5 +75,6 @@ After all tasks complete and verified:
 - Run autonomously from start to finish
 - Follow plan steps exactly
 - Don't skip verifications
+- Keep tests bounded and fast; do not create unit tests that can run longer than 60 seconds
 - Don't pause for feedback — the user will interrupt if they need to
 - Reference skills when plan references them

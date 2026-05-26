@@ -2,7 +2,7 @@
 name: review-plan
 description: Lead Architect review of implementation plans. Checks for redundancy, architectural fit, and testability. Use when asked to "review this plan", "check my approach", or "critique this design".
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Read, Grep, Glob, Bash, Write
 ---
 
 # Reviewing Implementation Plans
@@ -13,11 +13,17 @@ You act as a **Lead Architect**. Your goal is to reject plans that reinvent the 
 
 **Trigger:** When the user provides a plan (text or file) and asks for a review.
 
+Before reviewing, read the shared conventions:
+- `_shared/html-conventions.md` for executable HTML and Markdown plan schemas
+- `_shared/testing-conventions.md` for unit-test speed budgets and slow-test classification
+
 ## The Review Process
 
 ### Step 1: Context Gathering (The "Don't Guess" Phase)
 Before offering any opinion, you must map the plan to the current codebase.
 1.  **Read the Plan** thoroughly.
+    * If the plan is `.html`, judge it against the executable HTML schema: `<section data-phase="N" data-title="...">`, `<ul class="tasks">`, and `<section class="verification">`.
+    * If the plan is `.md`, judge it against the legacy markdown phase schema.
 2.  **Scan for Existing Solutions**:
     * If the plan proposes a new utility, `grep` the codebase to see if a similar function exists.
     * If the plan adds a UI component, list the contents of the components directory to ensure it doesn't duplicate an existing one.
@@ -40,13 +46,16 @@ Analyze the plan against these four specific criteria:
 #### 3. The "Testability" Check
 * **Fail if:** The plan lists implementation steps but zero testing steps.
 * **Fail if:** The plan says "Test manually."
-* **Action:** Require specific automated test steps (e.g., "Add unit test to `__tests__`" or "Update integration spec").
+* **Fail if:** The plan proposes unit tests that can exceed 60 seconds, use real network/cloud resources, rely on long sleeps, or generate unbounded data.
+* **Fail if:** Slow integration/e2e/load tests are not explicitly marked or separated from the fast unit-test path.
+* **Action:** Require specific automated test steps (e.g., "Add unit test to `__tests__`" or "Update integration spec") and require any long tests to be classified as `slow`, `integration`, `e2e`, or equivalent.
 
 #### 4. The "Phase Structure" Check
 * **Fail if:** The plan does not use the required phase format.
-* **Required format:** Each plan MUST be organized into discrete phases using `## Phase N: Title` headings. Each phase MUST contain:
+* **Required Markdown format:** Markdown plans MUST be organized into discrete phases using `## Phase N: Title` headings. Each phase MUST contain:
     - A list of tasks (as `- [ ] Task description` checkboxes)
     - A `### Verification` subsection with specific test/check steps
+* **Required HTML format:** HTML plans MUST use `<section data-phase="N" data-title="...">` for each phase, `<ul class="tasks"><li>...` for tasks, and `<section class="verification">` for verification.
 * **Example of valid structure:**
     ```markdown
     ## Phase 1: Set up data models
@@ -63,11 +72,13 @@ Analyze the plan against these four specific criteria:
     - Run: uv run pytest tests/api/test_users.py
     ```
 * **Fail if:** Tasks are in a flat list without phase groupings.
-* **Fail if:** Phase headings don't follow the `## Phase N: Title` pattern (e.g., using `### Step 1` or `## Part A`).
-* **Fail if:** The plan is written as HTML or HTML-like markup (for example `<h2>Phase 1</h2>`, `<section>`, `<ol>`, `<li>`) instead of markdown phase headings and task checkboxes.
-* **Action:** "Plan must be structured into markdown phases using `## Phase N: Title` headings with `- [ ]` task checkboxes and `### Verification` subsections. Convert HTML or unstructured plans into this format. This is required for autonomous execution with `/ralph-execute`."
+* **Fail if:** Markdown phase headings don't follow the `## Phase N: Title` pattern (e.g., using `### Step 1` or `## Part A`).
+* **Fail if:** HTML plans use presentational HTML only (for example `<h2>Phase 1</h2>` and generic `<ul>`) without the executable `data-phase`, `data-title`, `class="tasks"`, and `class="verification"` markers.
+* **Action:** "Plan must be structured as executable HTML or executable Markdown. HTML plans use `<section data-phase=\"N\" data-title=\"...\">`, `<ul class=\"tasks\">`, and `<section class=\"verification\">`. Markdown plans use `## Phase N: Title`, `- [ ]` task checkboxes, and `### Verification`. This is required for autonomous execution with `/ralph-execute`."
 
 ### Step 3: The Verdict
+
+Prefer writing the review artifact to `agent_docs/reports/reviews/{plan-slug}-review.html` using the shared HTML report skeleton. Also output the summary in the conversation. If writing the file is not possible, still output the full report.
 
 Output your review in this exact format:
 
@@ -92,3 +103,4 @@ Output your review in this exact format:
 * **Be strict.** It is better to stop a bad plan now than debug it later.
 * **Do not execute** the plan during this skill. Only review it.
 * **Encourage reuse.** If you see 80% of the functionality in an existing class, suggest extending that class rather than making a new one.
+* **Keep tests practical.** A plan with bloated or misclassified tests is not approved.

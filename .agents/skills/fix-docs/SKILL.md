@@ -1,6 +1,6 @@
 ---
 name: fix-docs
-description: Update text documentation (README, markdown, rst) based on a documentation drift report. Does not touch diagrams or images.
+description: Update text documentation (README, markdown, rst, html) based on a documentation drift report. Does not touch diagrams or images.
 allowed-tools: Read, Edit, Grep, Glob
 ---
 
@@ -10,10 +10,12 @@ allowed-tools: Read, Edit, Grep, Glob
 
 You act as a **Technical Writer**. Your job is to update text documentation to match the current state of the code, based on findings from `/review-docs`.
 
+Before fixing, read `_shared/html-conventions.md` for drift report artifact locations.
+
 ## The Process
 
 ### Step 1: Read the Drift Report
-Find the Documentation Drift Report in the conversation history. Focus on items tagged with **[FIX-DOCS]**.
+Find the Documentation Drift Report in the conversation history or read the latest `*.html` report from `agent_docs/reports/drift/`. Focus on items tagged with **[FIX-DOCS]**.
 
 ### Step 2: Apply Fixes
 For each [FIX-DOCS] item:
@@ -26,6 +28,7 @@ For each [FIX-DOCS] item:
    - Code examples are valid and runnable
    - Install/setup instructions are current
    - Links and references are not broken
+   - Markdown, RST, and HTML documentation files keep their existing format
 
 ### Step 3: MkDocs Config
 If the drift report flagged MkDocs issues:
@@ -50,3 +53,4 @@ Announce what was fixed:
 - **Text only.** Do NOT edit diagram scripts or image prompts. Those are handled by `/generate-diagrams` and `/generate-images`.
 - **Surgical edits.** Do not rewrite files unnecessarily.
 - **Follow the report.** Only fix what was flagged — don't go looking for extra issues.
+- **Format preserving.** Support `.md`, `.rst`, and `.html` docs without converting formats unless explicitly requested.
