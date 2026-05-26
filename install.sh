@@ -204,6 +204,7 @@ else
   echo "  /review-plan    - Architect review of implementation plans"
   echo "  /fix-plan       - Fix plans based on review feedback"
   echo "  /execute        - Execute plans in batches"
+  echo "  /verify-tests   - Fast test-quality audit"
   echo "  /verify         - Post-execution QA"
   echo "  /review-docs    - Detect documentation drift"
   echo "  /fix-docs       - Update text documentation from drift findings"

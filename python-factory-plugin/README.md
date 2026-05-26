@@ -28,6 +28,7 @@ All skills are namespaced as `/python-factory:<skill-name>` when installed as a 
 | execute | `/python-factory:execute` | Execute HTML or Markdown implementation plans in batches |
 | review-plan | `/python-factory:review-plan` | Architect review: redundancy, architecture, testability, phase structure, and test budget checks |
 | fix-plan | `/python-factory:fix-plan` | Surgical fixes to plans based on review feedback |
+| verify-tests | `/python-factory:verify-tests` | Fast test-quality audit before full verification |
 | verify | `/python-factory:verify` | Post-execution QA: plan compliance, redundancy audit, tests |
 | review-docs | `/python-factory:review-docs` | Detect documentation drift in text, diagrams, and images |
 | fix-docs | `/python-factory:fix-docs` | Update text documentation from a drift report |

@@ -115,8 +115,9 @@ Every feature follows this lifecycle:
 
 1. **Plan** — Write an HTML plan in `agent_docs/plans/`, run `/review-plan agent_docs/plans/my-feature.html`. Markdown plans still work.
 2. **Execute** — Implement in batches with `/execute agent_docs/plans/my-feature.html`
-3. **Verify** — QA check with `/verify`
-4. **Document** — Audit with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed
+3. **Verify Tests** — Fast test-quality audit with `/verify-tests`
+4. **Verify** — QA check with `/verify`
+5. **Document** — Audit with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed
 
 Plans and reports follow `.claude/skills/_shared/html-conventions.md`. Tests follow `.claude/skills/_shared/testing-conventions.md`: unit tests should be fast, no unit test may exceed 60 seconds, and long integration/e2e tests must be marked separately.
 
@@ -128,7 +129,7 @@ For fully autonomous development with built-in review loops and per-phase commit
 # Auto-review until approved (up to 5 iterations)
 /ralph-review agent_docs/plans/my-feature.html
 
-# Auto-execute with verification and commits per phase
+# Auto-execute with test-quality gates, verification, and commits per phase
 /ralph-execute agent_docs/plans/my-feature.html
 
 # Custom drift review iteration count
