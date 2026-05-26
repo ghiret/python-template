@@ -16,6 +16,8 @@ Parse arguments:
 When reading companion skills, prefer `.agents/skills/<name>/SKILL.md` if it exists
 (Codex layout). Otherwise use `.claude/skills/<name>/SKILL.md` (Claude layout).
 
+Also read `_shared/html-conventions.md` before the loop. Plan review reports should be written under `agent_docs/reports/reviews/`, and HTML plans should remain HTML unless the user explicitly requests conversion.
+
 ## MANDATORY COMPLETION RULE
 
 **YOU MUST COMPLETE EVERY SINGLE ITERATION from 1 to N.** The ONLY exception is an explicit APPROVED verdict from the review agent. Do NOT stop early because the plan "looks good", because changes are "minor", because you think further iterations are "unnecessary", or for any other reason. If the verdict is REQUEST CHANGES, you MUST continue to the next iteration — no exceptions.
@@ -49,6 +51,7 @@ For each iteration i = 1, 2, 3, ..., N (you MUST go in order, one at a time):
    > Plan file: {plan_file}
    >
    > Read the `review-plan` companion skill using the Skill Path Resolution rule above and execute its FULL review process on the plan file.
+   > Write the review report artifact under `agent_docs/reports/reviews/` using the shared HTML report skeleton.
    >
    > You MUST output the complete review report with the exact verdict format:
    > **Review Status:** APPROVED
@@ -84,7 +87,8 @@ For each iteration i = 1, 2, 3, ..., N (you MUST go in order, one at a time):
    >
    > Read the `fix-plan` companion skill using the Skill Path Resolution rule above and execute its fix process on the plan file.
    > Apply ALL recommended changes from the review.
-   > If the plan is HTML or HTML-like markup, convert it to the exact markdown phase structure required by `/ralph-execute`: `## Phase N: Title`, `- [ ]` task checkboxes, and `### Verification` subsections.
+   > If the plan is HTML or HTML-like markup, preserve HTML and make it executable with `<section data-phase="N" data-title="...">`, `<ul class="tasks">`, and `<section class="verification">`.
+   > If the plan is Markdown, preserve Markdown and use `## Phase N: Title`, `- [ ]` task checkboxes, and `### Verification` subsections.
    > When done, announce what was changed.
 
 8. Wait for the agent to complete

@@ -13,6 +13,10 @@ You act as a **Plan Surgeon**. Your goal is to take a rejected plan and the Revi
 
 **Trigger:** The user says "Fix the plan," "Apply the feedback," or "Update the plan based on the review."
 
+Before fixing, read the shared conventions:
+- `_shared/html-conventions.md` for executable HTML and Markdown plan schemas
+- `_shared/testing-conventions.md` for test speed budgets and slow-test classification
+
 ## The Process
 
 ### Step 1: Analyze the Critique
@@ -20,6 +24,8 @@ Read the conversation history to find the **Review Report** from the `/review-pl
 1.  **Redundancy Failures:** Did the architect identify existing code we must use?
 2.  **Architecture Failures:** Did we use the wrong pattern (e.g., raw SQL instead of ORM)?
 3.  **Testing Failures:** Did we forget to include a verification step?
+4.  **Test Budget Failures:** Did the plan create slow unit tests, unmarked integration tests, sleeps, real network calls, or unbounded generated data?
+5.  **Phase Structure Failures:** Does the plan need executable HTML or Markdown phase markers?
 
 ### Step 2: Apply Surgical Edits
 Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if you don't have to.**
@@ -38,6 +44,11 @@ Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if 
     2. Test case: Happy path returns 200.
     3. Test case: Error path returns 400.
     ```
+* **Test Budget Fix:** If a test could exceed 60 seconds or requires integration/e2e behavior, rewrite the plan so:
+    - Unit tests stay isolated, deterministic, and fast
+    - Long tests are marked `slow`, `integration`, `e2e`, or equivalent
+    - Sleeps, real network calls, and unbounded generated data are removed from unit tests
+    - The fast default test command remains practical for normal development
 
 #### Fix Type C: Resolving "Architecture"
 * **Bad Plan Step:** "Add logic directly in the Controller."
@@ -46,8 +57,10 @@ Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if 
 
 #### Fix Type D: Resolving "Phase Structure"
 * **Bad Plan:** Tasks in a flat numbered list, unstructured sections, or HTML/HTML-like markup.
-* **Reviewer Feedback:** "Plan must use `## Phase N: Title` headings with task checkboxes and verification subsections."
-* **Your Fix:** Restructure the plan into markdown logical phases. Group related tasks together. Each phase gets:
+* **Reviewer Feedback:** "Plan must use executable HTML or Markdown phase headings with task lists and verification subsections."
+* **Your Fix:** Preserve the plan's existing format when possible.
+  - For `.html` plans, surgically edit the HTML so each phase uses `<section data-phase="N" data-title="...">`, `<ul class="tasks">`, and `<section class="verification">`.
+  - For `.md` plans, restructure into markdown logical phases. Group related tasks together. Each phase gets:
     ```markdown
     ## Phase N: Descriptive Title
     - [ ] Task description
@@ -55,13 +68,13 @@ Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if 
     ### Verification
     - Specific test command or check
     ```
-* **HTML plan conversion:** If the plan contains HTML tags such as `<h1>`, `<h2>`, `<section>`, `<ol>`, `<ul>`, `<li>`, `<p>`, or `<code>`, convert the plan file to markdown before resubmitting:
-    - Convert phase-like headings to `## Phase N: Title`
-    - Convert implementation list items to `- [ ] Task description`
-    - Convert verification/test/check sections to `### Verification`
+* **HTML plan repair:** If the plan contains HTML tags such as `<h1>`, `<h2>`, `<section>`, `<ol>`, `<ul>`, `<li>`, `<p>`, or `<code>`, keep it as HTML and make it executable:
+    - Convert phase-like wrappers to `<section data-phase="N" data-title="...">`
+    - Convert implementation list wrappers to `<ul class="tasks"><li>Task description</li></ul>`
+    - Convert verification/test/check sections to `<section class="verification">`
     - Preserve code paths, commands, acceptance criteria, and architectural notes as markdown text
-    - Remove presentational HTML wrappers that `/ralph-execute` cannot parse
-    - A full-file rewrite is acceptable when the source plan is HTML because the parser requires markdown phase headings
+    - Remove or replace presentational HTML wrappers that `/ralph-execute` cannot parse
+    - A full-file rewrite is acceptable when the source plan is presentational HTML and cannot be made executable surgically
 * **Guidelines for grouping into phases:**
     - Group by dependency: tasks that depend on each other go in the same phase
     - Group by layer: data models → business logic → API → UI
@@ -70,9 +83,10 @@ Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if 
 
 ### Step 3: Sanity Check
 After editing, quickly read the file again to ensure:
-1.  The structure uses `## Phase N: Title` headings with `- [ ]` tasks and `### Verification` subsections.
+1.  The structure uses executable HTML phase sections or markdown `## Phase N: Title` headings with tasks and verification subsections.
 2.  The "Reinvention" items are gone.
 3.  The Tests are present.
+4.  Unit tests are bounded and no unit test can exceed 60 seconds.
 
 ### Step 4: Resubmit
 Announce completion:
@@ -85,3 +99,4 @@ Announce completion:
 ## Critical Rules
 * **Do not execute the code.** You are editing the *text file* of the plan, not the source code.
 * **Be Explicit:** If you change a step to use an existing library, explicitly name that library in the plan text so the Executor sees it.
+* **Preserve format compatibility:** HTML plans stay HTML unless the user explicitly asks for Markdown. Markdown plans stay Markdown.

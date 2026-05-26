@@ -18,7 +18,7 @@ You generate documentation images by creating markdown prompt files and running 
 3. Check that `httpx` is available: `uv run python -c "import httpx"`. If missing, run `uv add httpx`.
 
 ### Step 2: Read Context
-- If called from `/ralph-execute`: read the Documentation Drift Report and focus on **[GENERATE-IMAGES]** items
+- If called from `/ralph-execute`: read the Documentation Drift Report from the conversation or the latest `*.html` report in `agent_docs/reports/drift/`, then focus on **[GENERATE-IMAGES]** items
 - If called standalone: read the user's request for what images to generate
 
 ### Step 3: Create/Update Prompt Files

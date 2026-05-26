@@ -11,17 +11,21 @@ Parse arguments:
 - If one argument: review_iterations=5, plan_file=$ARGUMENTS[0]
 - If two arguments: review_iterations=$ARGUMENTS[0], plan_file=$ARGUMENTS[1]
 - Phase selection is optional:
-  - `phase=N` may appear before the plan file: `/ralph-execute phase=2 agent_docs/plans/my-plan.md`
-  - `phase N` may appear before the plan file: `/ralph-execute phase 2 agent_docs/plans/my-plan.md`
-  - `phases=N-M` runs an inclusive range: `/ralph-execute phases=2-4 agent_docs/plans/my-plan.md`
-  - `phases=N,M,K` runs an explicit ordered list: `/ralph-execute phases=1,3 agent_docs/plans/my-plan.md`
-  - A review iteration count may still come first: `/ralph-execute 3 phase=2 agent_docs/plans/my-plan.md`
+  - `phase=N` may appear before the plan file: `/ralph-execute phase=2 agent_docs/plans/my-plan.html`
+  - `phase N` may appear before the plan file: `/ralph-execute phase 2 agent_docs/plans/my-plan.html`
+  - `phases=N-M` runs an inclusive range: `/ralph-execute phases=2-4 agent_docs/plans/my-plan.html`
+  - `phases=N,M,K` runs an explicit ordered list: `/ralph-execute phases=1,3 agent_docs/plans/my-plan.html`
+  - A review iteration count may still come first: `/ralph-execute 3 phase=2 agent_docs/plans/my-plan.html`
 - If no phase selector is provided, selected_phases=ALL.
 
 ## Skill Path Resolution
 
 When reading companion skills, prefer `.agents/skills/<name>/SKILL.md` if it exists
 (Codex layout). Otherwise use `.claude/skills/<name>/SKILL.md` (Claude layout).
+
+Also read the shared conventions before setup:
+- `_shared/html-conventions.md` for HTML plan parsing and report artifact locations
+- `_shared/testing-conventions.md` for test speed budgets enforced by execute and verify
 
 ## MANDATORY COMPLETION RULE
 
@@ -41,7 +45,9 @@ The ONLY valid reasons to stop are:
 
 ## Setup
 
-1. Read the plan file and extract all phases by finding `## Phase N: Title` headings.
+1. Read the plan file and extract all phases:
+   - For `.html` plans, extract phases from `<section data-phase="N" data-title="...">`, tasks from `<ul class="tasks"><li>...`, and verification from `<section class="verification">`.
+   - For `.md` plans, extract phases by finding `## Phase N: Title` headings, `- [ ]` tasks, and `### Verification` subsections.
 2. Count the total number of phases (P).
 3. Resolve the requested scope:
    - If no selector is provided: selected_phases = [1, 2, ..., P]
@@ -82,8 +88,10 @@ Every selected phase MUST repeat Step A and Step B as distinct passes:
    > {paste the full phase content here, including tasks and verification subsection}
    >
    > IMPORTANT:
+   > - The source plan may be HTML or Markdown. Preserve and follow the parsed phase content exactly.
    > - Do NOT implement tasks from any other phase. ONLY implement the tasks listed above.
    > - Run AUTONOMOUSLY — do NOT stop for feedback or ask for confirmation. Execute all tasks to completion.
+   > - Keep tests bounded and fast. Do NOT add unit tests that can exceed 60 seconds; mark long integration/e2e tests explicitly.
    > - Only stop if you hit an unrecoverable blocker (3+ failed attempts on the same issue).
    > When done, announce "Phase {i} execution complete."
 
@@ -102,6 +110,7 @@ Every selected phase MUST repeat Step A and Step B as distinct passes:
    >
    > Read the `verify` companion skill using the Skill Path Resolution rule above and execute its full verification process.
    > Focus on whether Phase {i} was implemented correctly, but also check for regressions in earlier phases.
+   > Write the verification report artifact under `agent_docs/reports/verify/` and include a stable `VERIFICATION PASSED` or `VERIFICATION FAILED` marker.
    >
    > If verification FAILS:
    > - Attempt to fix the issues you find
@@ -127,10 +136,10 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
     > You are reviewing documentation after Phase {i} of an implementation.
     >
     > Read the `review-docs` companion skill using the Skill Path Resolution rule above and execute its full drift analysis.
-    > Output the Documentation Drift Report with tagged actions: [FIX-DOCS], [GENERATE-DIAGRAMS], [GENERATE-IMAGES].
+    > Write the Documentation Drift Report artifact under `agent_docs/reports/drift/` and include tagged actions: [FIX-DOCS], [GENERATE-DIAGRAMS], [GENERATE-IMAGES].
 
 16. Wait for the agent to complete
-17. Save the drift report output for the next sub-steps
+17. Save the drift report output and artifact path from `agent_docs/reports/drift/` for the next sub-steps
 18. Update task to COMPLETED
 
 #### C2: Fix Docs (via Agent — only if [FIX-DOCS] items found)
@@ -144,6 +153,8 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
       > Read the `fix-docs` companion skill using the Skill Path Resolution rule above and apply fixes for these findings:
       >
       > {paste the [FIX-DOCS] items from the drift report}
+      >
+      > If findings are not available in the conversation, read the latest drift report from `agent_docs/reports/drift/`.
 
     - Wait for the agent to complete
     - Update task to COMPLETED
@@ -207,6 +218,7 @@ Documentation issues from C2-C4 are warnings, not blockers — note them but pro
 27. Read the `ralph-review` companion skill using the Skill Path Resolution rule above and execute its full review process with {review_iterations} iterations on {plan_file}
     - This detects whether the plan still makes sense given what was just implemented
     - The plan may be updated if drift is detected
+    - Review artifacts should be written under `agent_docs/reports/reviews/`
 28. Wait for all review iterations to complete
 29. Update task to COMPLETED
 
@@ -250,6 +262,7 @@ After completion (or failure), output:
 - NEVER treat execution alone as sufficient — verification is a separate pass because LLM agents are fallible
 - NEVER skip verification — always verify after execute
 - NEVER skip the drift review — it catches plan drift between phases
+- NEVER ignore report artifacts — verification, docs drift, and plan review reports should live under `agent_docs/reports/`
 - NEVER commit without running pre-commit first
 - NEVER combine phases — each phase is a separate execute+verify+commit+review cycle
 - If verification fails twice, STOP — don't force through broken code

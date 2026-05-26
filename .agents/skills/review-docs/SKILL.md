@@ -1,7 +1,7 @@
 ---
 name: review-docs
 description: Detect documentation drift. Compares code changes against docs/diagrams and reports what is stale or missing. Read-only — does not modify files.
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Read, Grep, Glob, Bash, Write
 ---
 
 # Review Documentation: Drift Analysis
@@ -9,6 +9,8 @@ allowed-tools: Read, Grep, Glob, Bash
 ## Overview
 
 You act as a **Documentation Auditor**. Your job is to find what documentation is stale, missing, or inconsistent with the current code. You do NOT fix anything — you produce a report.
+
+Before reviewing, read `_shared/html-conventions.md` for artifact locations and the HTML report skeleton.
 
 ## The Process
 
@@ -47,6 +49,8 @@ For each category of change, check:
 
 ### Step 4: The Report
 
+Write the drift artifact to `agent_docs/reports/drift/{branch-or-plan-slug}-drift.html` using the shared HTML report skeleton. Also output the summary in the conversation.
+
 Output in this exact format:
 
 > **Documentation Drift Report**
@@ -76,3 +80,4 @@ Output in this exact format:
 - **Read-only.** Do NOT edit any files. Only report.
 - **Be specific.** Name the exact file, line, and what needs changing.
 - **Tag actions.** Use [FIX-DOCS], [GENERATE-DIAGRAMS], [GENERATE-IMAGES] tags so downstream skills know what to do.
+- **Stable tags.** Keep action tags as plain text or code inside the HTML report so downstream skills can grep them.

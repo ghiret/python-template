@@ -68,7 +68,8 @@ git push origin main
 ├── .devcontainer/        # DevContainer configuration
 ├── src/                  # Source code
 ├── tests/                # Test files
-├── agent_docs/plans/     # Implementation plans and agent scratch work (ignored)
+├── agent_docs/plans/     # HTML/Markdown implementation plans (ignored)
+├── agent_docs/reports/   # Agent-generated review/verify/drift reports (ignored)
 ├── pyproject.toml        # Project configuration
 └── README.md
 ```
@@ -112,10 +113,12 @@ The repo supports both runtimes:
 
 Every feature follows this lifecycle:
 
-1. **Plan** — Write a plan in `agent_docs/plans/`, run `/review-plan agent_docs/plans/my-feature.md`
-2. **Execute** — Implement in batches with `/execute agent_docs/plans/my-feature.md`
+1. **Plan** — Write an HTML plan in `agent_docs/plans/`, run `/review-plan agent_docs/plans/my-feature.html`. Markdown plans still work.
+2. **Execute** — Implement in batches with `/execute agent_docs/plans/my-feature.html`
 3. **Verify** — QA check with `/verify`
 4. **Document** — Audit with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed
+
+Plans and reports follow `.claude/skills/_shared/html-conventions.md`. Tests follow `.claude/skills/_shared/testing-conventions.md`: unit tests should be fast, no unit test may exceed 60 seconds, and long integration/e2e tests must be marked separately.
 
 ### Autonomous Workflow (Ralph)
 
@@ -123,19 +126,19 @@ For fully autonomous development with built-in review loops and per-phase commit
 
 ```bash
 # Auto-review until approved (up to 5 iterations)
-/ralph-review agent_docs/plans/my-feature.md
+/ralph-review agent_docs/plans/my-feature.html
 
 # Auto-execute with verification and commits per phase
-/ralph-execute agent_docs/plans/my-feature.md
+/ralph-execute agent_docs/plans/my-feature.html
 
 # Custom drift review iteration count
-/ralph-review 3 agent_docs/plans/my-feature.md
-/ralph-execute 10 agent_docs/plans/my-feature.md
+/ralph-review 3 agent_docs/plans/my-feature.html
+/ralph-execute 10 agent_docs/plans/my-feature.html
 
 # Execute selected phases only
-/ralph-execute phase=2 agent_docs/plans/my-feature.md
-/ralph-execute phases=2-4 agent_docs/plans/my-feature.md
-/ralph-execute 3 phases=1,3 agent_docs/plans/my-feature.md
+/ralph-execute phase=2 agent_docs/plans/my-feature.html
+/ralph-execute phases=2-4 agent_docs/plans/my-feature.html
+/ralph-execute 3 phases=1,3 agent_docs/plans/my-feature.html
 ```
 
 ### Available Subagents

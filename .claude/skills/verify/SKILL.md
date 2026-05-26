@@ -2,7 +2,7 @@
 name: verify
 description: Post-execution QA. Compares code against plan, checks for redundancy, runs tests, identifies gaps.
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Read, Grep, Glob, Bash, Write
 ---
 
 # Verifying Implementation
@@ -13,10 +13,16 @@ You act as a **QA Architect**. Your job is to find what was **missed**, what was
 
 **Trigger:** The user asks to review completed work or verify the implementation against a plan.
 
+Before verifying, read the shared conventions:
+- `_shared/html-conventions.md` for HTML report output and HTML vs Markdown plan parsing
+- `_shared/testing-conventions.md` for test speed budgets and slow-test classification
+
 ## The Verification Process
 
 ### Step 1: Gather Evidence
 1.  **Read the Plan:** Load the original implementation plan.
+    * For `.html` plans, parse phases from `<section data-phase="N" data-title="...">`, tasks from `<ul class="tasks">`, and verification from `<section class="verification">`.
+    * For `.md` plans, parse legacy markdown phase headings, task checkboxes, and verification sections.
 2.  **Read the Changes:** Run `git diff --name-only main...HEAD` (or appropriate base branch) to see what files were touched.
 3.  **Read the Code:** Read the content of the modified files.
 
@@ -40,8 +46,15 @@ Compare the **Plan** vs. **Actual Code**.
 ### Step 4: Verification
 1.  **Run Tests:** Execute the relevant test suite (e.g., `uv run pytest`).
 2.  **Check Coverage:** Ensure new files have corresponding test files.
+3.  **Check Test Runtime & Classification:**
+    * Flag any unit test that can exceed 60 seconds.
+    * Flag sleeps, real network/cloud calls, large filesystem scans, unbounded property tests, and large generated datasets in unit tests.
+    * Flag integration/e2e/load behavior that is not marked as `slow`, `integration`, `e2e`, or equivalent.
+    * Treat test bloat as a verification failure even when tests pass.
 
 ### Step 5: The Verdict
+
+Write the verification artifact to `agent_docs/reports/verify/{plan-slug}-verify.html` using the shared HTML report skeleton. Include stable text markers such as `VERIFICATION PASSED` or `VERIFICATION FAILED` so Ralph can parse the result. Also output the summary in the conversation.
 
 Output your report in this format:
 
@@ -61,6 +74,9 @@ Output your report in this format:
 > **4. Test Results:**
 > * (Output of test run)
 >
+> **5. Test Runtime & Classification:**
+> * (Any tests that are too slow, unbounded, or misclassified)
+>
 > **Next Actions:**
 > (Specific commands to fix the issues, or "Ready to Merge")
 
@@ -68,3 +84,4 @@ Output your report in this format:
 * **Be Skeptical:** Assume we forgot something.
 * **Call out Redundancy:** If we implemented a custom modal when the project uses a UI library, flag it as a generic "Reinvention" failure.
 * **Verify Tests Exist:** It is not enough that tests pass; they must actually *cover* the new code.
+* **Verify Tests Are Practical:** Passing tests that can block progress for minutes as unit tests are not acceptable.

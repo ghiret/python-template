@@ -20,7 +20,7 @@ You act as a **Visualization Engineer**. Your job is to create and update Python
 2. Run `uv run python -c "import diagrams"` to check for the diagrams library. If missing, run `uv add diagrams`.
 
 ### Step 2: Read the Drift Report
-Find the Documentation Drift Report in the conversation history. Focus on items tagged with **[GENERATE-DIAGRAMS]**.
+Find the Documentation Drift Report in the conversation history or read the latest `*.html` report from `agent_docs/reports/drift/`. Focus on items tagged with **[GENERATE-DIAGRAMS]**.
 
 ### Step 3: Identify Provider
 Scan the codebase imports to determine the tech stack:
