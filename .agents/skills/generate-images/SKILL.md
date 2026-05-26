@@ -1,7 +1,6 @@
 ---
 name: generate-images
 description: Generate AI documentation images using scripts/generate_doc_images.py via OpenRouter (Gemini 3 Pro Image Preview). Requires OPENROUTER_API_KEY in .env.
-disable-model-invocation: true
 allowed-tools: Read, Edit, Write, Bash, Glob
 ---
 

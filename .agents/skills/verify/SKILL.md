@@ -1,7 +1,6 @@
 ---
 name: verify
 description: Post-execution QA. Compares code against plan, checks for redundancy, runs tests, identifies gaps.
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash
 ---
 

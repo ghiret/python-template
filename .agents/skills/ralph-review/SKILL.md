@@ -1,8 +1,8 @@
 ---
 name: ralph-review
-description: Autonomous review loop. Spawns agents for /review-plan and /fix-plan up to N times until the plan is approved. Usage: /ralph-review [iterations] <plan-file>
-disable-model-invocation: true
-argument-hint: "[iterations=5] <plan-file>"
+description: "Autonomous review loop. Spawns agents for /review-plan and /fix-plan up to N times until the plan is approved. Usage: /ralph-review [iterations] plan-file"
+metadata:
+  argument-hint: "[iterations=5] <plan-file>"
 ---
 
 # Ralph Review: Autonomous Plan Review Loop
@@ -10,6 +10,11 @@ argument-hint: "[iterations=5] <plan-file>"
 Parse arguments:
 - If one argument: iterations=5, plan_file=$ARGUMENTS[0]
 - If two arguments: iterations=$ARGUMENTS[0], plan_file=$ARGUMENTS[1]
+
+## Skill Path Resolution
+
+When reading companion skills, prefer `.agents/skills/<name>/SKILL.md` if it exists
+(Codex layout). Otherwise use `.claude/skills/<name>/SKILL.md` (Claude layout).
 
 ## MANDATORY COMPLETION RULE
 
@@ -43,7 +48,7 @@ For each iteration i = 1, 2, 3, ..., N (you MUST go in order, one at a time):
    >
    > Plan file: {plan_file}
    >
-   > Read the skill file `.claude/skills/review-plan/SKILL.md` and execute its FULL review process on the plan file.
+   > Read the `review-plan` companion skill using the Skill Path Resolution rule above and execute its FULL review process on the plan file.
    >
    > You MUST output the complete review report with the exact verdict format:
    > **Review Status:** APPROVED
@@ -77,7 +82,7 @@ For each iteration i = 1, 2, 3, ..., N (you MUST go in order, one at a time):
    > The review produced these findings:
    > {paste the full review report from Step A here}
    >
-   > Read the skill file `.claude/skills/fix-plan/SKILL.md` and execute its fix process on the plan file.
+   > Read the `fix-plan` companion skill using the Skill Path Resolution rule above and execute its fix process on the plan file.
    > Apply ALL recommended changes from the review.
    > When done, announce what was changed.
 

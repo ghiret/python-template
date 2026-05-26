@@ -63,11 +63,12 @@ git push origin main
 │   ├── rules/            # Path-specific coding rules
 │   ├── commands/         # Command wrappers
 │   └── settings.json     # Permissions and hook config
+├── .agents/              # Codex-compatible skills
 ├── python-factory-plugin/ # Installable plugin for other repos
 ├── .devcontainer/        # DevContainer configuration
 ├── src/                  # Source code
 ├── tests/                # Test files
-├── plans/                # Implementation plans
+├── agent_docs/plans/     # Implementation plans and agent scratch work (ignored)
 ├── pyproject.toml        # Project configuration
 └── README.md
 ```
@@ -99,14 +100,22 @@ uv run ruff format .
 claude
 ```
 
+### Skill Layout
+
+The repo supports both runtimes:
+
+- `.claude/skills/` uses Claude-compatible frontmatter, including `disable-model-invocation` for manually triggered workflow skills.
+- `.agents/skills/` uses Codex-compatible frontmatter and `agents/openai.yaml` policy metadata.
+- `python-factory-plugin/skills/` carries the Claude-compatible plugin copy.
+
 ### Skill Workflow (The "Software Factory")
 
 Every feature follows this lifecycle:
 
-1. **Plan** — Write a plan in `plans/`, run `/review-plan plans/my-feature.md`
-2. **Execute** — Implement in batches with `/execute plans/my-feature.md`
+1. **Plan** — Write a plan in `agent_docs/plans/`, run `/review-plan agent_docs/plans/my-feature.md`
+2. **Execute** — Implement in batches with `/execute agent_docs/plans/my-feature.md`
 3. **Verify** — QA check with `/verify`
-4. **Document** — Sync docs with `/verify-docs`
+4. **Document** — Audit with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed
 
 ### Autonomous Workflow (Ralph)
 
@@ -114,14 +123,14 @@ For fully autonomous development with built-in review loops and per-phase commit
 
 ```bash
 # Auto-review until approved (up to 5 iterations)
-/ralph-review plans/my-feature.md
+/ralph-review agent_docs/plans/my-feature.md
 
 # Auto-execute with verification and commits per phase
-/ralph-execute plans/my-feature.md
+/ralph-execute agent_docs/plans/my-feature.md
 
 # Custom iteration counts
-/ralph-review 3 plans/my-feature.md
-/ralph-execute 10 plans/my-feature.md
+/ralph-review 3 agent_docs/plans/my-feature.md
+/ralph-execute 10 agent_docs/plans/my-feature.md
 ```
 
 ### Available Subagents
@@ -140,7 +149,7 @@ For fully autonomous development with built-in review loops and per-phase commit
 curl -fsSL https://raw.githubusercontent.com/ghiret/python-template/main/install.sh | bash
 ```
 
-This installs 9 skills, 3 agents, 3 hooks, 3 rules, and 8 commands into your project's `.claude/` directory.
+This installs the Claude-compatible skills, 3 agents, 3 hooks, 3 rules, and command wrappers into your project's `.claude/` directory.
 
 **What it does:**
 - Detects and removes old-named skills (`executing-plans`, `verifying-implementation`, etc.)

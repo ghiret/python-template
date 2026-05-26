@@ -1,7 +1,6 @@
 ---
 name: fix-plan
 description: Applies specific fixes to a plan file based on architectural review feedback.
-disable-model-invocation: true
 allowed-tools: Read, Edit, Grep, Glob
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: review-docs
 description: Detect documentation drift. Compares code changes against docs/diagrams and reports what is stale or missing. Read-only — does not modify files.
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash
 ---
 

@@ -27,8 +27,13 @@ All skills are namespaced as `/python-factory:<skill-name>` when installed as a 
 | review-plan | `/python-factory:review-plan` | Architect review: redundancy, architecture, testability checks |
 | fix-plan | `/python-factory:fix-plan` | Surgical fixes to plans based on review feedback |
 | verify | `/python-factory:verify` | Post-execution QA: plan compliance, redundancy audit, tests |
-| verify-docs | `/python-factory:verify-docs` | Sync documentation with code, generate architecture diagrams |
+| review-docs | `/python-factory:review-docs` | Detect documentation drift in text, diagrams, and images |
+| fix-docs | `/python-factory:fix-docs` | Update text documentation from a drift report |
+| generate-diagrams | `/python-factory:generate-diagrams` | Generate or update architecture diagrams |
+| generate-images | `/python-factory:generate-images` | Generate AI documentation images |
 | init-project | `/python-factory:init-project` | Initialize a new project from the template |
+| ralph-review | `/python-factory:ralph-review` | Autonomous review loop for implementation plans |
+| ralph-execute | `/python-factory:ralph-execute` | Autonomous phase execution pipeline |
 | web-design-guidelines | `/python-factory:web-design-guidelines` | Review UI code for Web Interface Guidelines compliance |
 
 ## Agents

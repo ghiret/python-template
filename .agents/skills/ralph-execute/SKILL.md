@@ -1,8 +1,8 @@
 ---
 name: ralph-execute
-description: Autonomous execution pipeline. Parses plan phases, executes each via agents (execute → verify → docs → commit), then runs drift review between phases. Usage: /ralph-execute [review-iterations=5] <plan-file>
-disable-model-invocation: true
-argument-hint: "[review-iterations=5] <plan-file>"
+description: "Autonomous execution pipeline. Parses plan phases, executes each via agents (execute → verify → docs → commit), then runs drift review between phases. Usage: /ralph-execute [review-iterations=5] plan-file"
+metadata:
+  argument-hint: "[review-iterations=5] <plan-file>"
 ---
 
 # Ralph Execute: Autonomous Implementation Pipeline
@@ -10,6 +10,11 @@ argument-hint: "[review-iterations=5] <plan-file>"
 Parse arguments:
 - If one argument: review_iterations=5, plan_file=$ARGUMENTS[0]
 - If two arguments: review_iterations=$ARGUMENTS[0], plan_file=$ARGUMENTS[1]
+
+## Skill Path Resolution
+
+When reading companion skills, prefer `.agents/skills/<name>/SKILL.md` if it exists
+(Codex layout). Otherwise use `.claude/skills/<name>/SKILL.md` (Claude layout).
 
 ## MANDATORY COMPLETION RULE
 
@@ -41,7 +46,7 @@ For each phase i = 1, 2, 3, ..., P (you MUST go in order, one at a time):
    >
    > Plan file: {plan_file}
    >
-   > Read the skill file `.claude/skills/execute/SKILL.md` and follow its process to implement ONLY the following phase:
+   > Read the `execute` companion skill using the Skill Path Resolution rule above and follow its process to implement ONLY the following phase:
    >
    > {paste the full phase content here, including tasks and verification subsection}
    >
@@ -64,7 +69,7 @@ For each phase i = 1, 2, 3, ..., P (you MUST go in order, one at a time):
    >
    > Plan file: {plan_file}
    >
-   > Read the skill file `.claude/skills/verify/SKILL.md` and execute its full verification process.
+   > Read the `verify` companion skill using the Skill Path Resolution rule above and execute its full verification process.
    > Focus on whether Phase {i} was implemented correctly, but also check for regressions in earlier phases.
    >
    > If verification FAILS:
@@ -90,7 +95,7 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
 
     > You are reviewing documentation after Phase {i} of an implementation.
     >
-    > Read the skill file `.claude/skills/review-docs/SKILL.md` and execute its full drift analysis.
+    > Read the `review-docs` companion skill using the Skill Path Resolution rule above and execute its full drift analysis.
     > Output the Documentation Drift Report with tagged actions: [FIX-DOCS], [GENERATE-DIAGRAMS], [GENERATE-IMAGES].
 
 16. Wait for the agent to complete
@@ -105,7 +110,7 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
 
       > You are fixing text documentation after Phase {i} of an implementation.
       >
-      > Read the skill file `.claude/skills/fix-docs/SKILL.md` and apply fixes for these findings:
+      > Read the `fix-docs` companion skill using the Skill Path Resolution rule above and apply fixes for these findings:
       >
       > {paste the [FIX-DOCS] items from the drift report}
 
@@ -120,7 +125,7 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
 
       > You are updating architecture diagrams after Phase {i} of an implementation.
       >
-      > Read the skill file `.claude/skills/generate-diagrams/SKILL.md` and update diagrams for these findings:
+      > Read the `generate-diagrams` companion skill using the Skill Path Resolution rule above and update diagrams for these findings:
       >
       > {paste the [GENERATE-DIAGRAMS] items from the drift report}
 
@@ -135,7 +140,7 @@ This step has 4 sub-steps. The review runs always; the fixes run only if the rev
 
       > You are generating AI documentation images after Phase {i} of an implementation.
       >
-      > Read the skill file `.claude/skills/generate-images/SKILL.md` and generate images for these findings:
+      > Read the `generate-images` companion skill using the Skill Path Resolution rule above and generate images for these findings:
       >
       > {paste the [GENERATE-IMAGES] items from the drift report}
 
@@ -167,7 +172,7 @@ Documentation issues from C2-C4 are warnings, not blockers — note them but pro
 
 25. Create task "Phase {i}/{P}: Drift review ({review_iterations} iterations)" and set to IN_PROGRESS
 26. Announce: **"=== PHASE {i} OF {P}: DRIFT REVIEW ({review_iterations} iterations) ==="**
-27. Read `.claude/skills/ralph-review/SKILL.md` and execute its full review process with {review_iterations} iterations on {plan_file}
+27. Read the `ralph-review` companion skill using the Skill Path Resolution rule above and execute its full review process with {review_iterations} iterations on {plan_file}
     - This detects whether the plan still makes sense given what was just implemented
     - The plan may be updated if drift is detected
 28. Wait for all review iterations to complete

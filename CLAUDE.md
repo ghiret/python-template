@@ -11,17 +11,17 @@ If this is a freshly cloned template, run `/init-project` to configure:
 **CRITICAL:** This environment is ephemeral. To prevent data loss:
 1. **Work Directory:** ONLY write files inside the current project root (`.`).
 2. **No Global Paths:** DO NOT write to `~`, `/tmp`, or `/var`.
-3. **Plan Storage:** Store all implementation plans in `./plans/`.
+3. **Plan Storage:** Store all implementation plans in `./agent_docs/plans/`.
 4. **Scratchpads:** Store thought processes/checklists in `./docs/scratchpads/`.
 5. **Agent Dumps:** Use `./agent_docs/` for research, API docs, or temporary references (untracked).
 
 ## SKILL WORKFLOW (The "Software Factory")
 You must adhere to this lifecycle for every feature request:
 
-1. **ARCHITECTURE** — Create a markdown plan in `./plans/`. Run `/review-plan` to check against existing code.
+1. **ARCHITECTURE** — Create a markdown plan in `./agent_docs/plans/`. Run `/review-plan` to check against existing code.
 2. **EXECUTION** — Implement the plan in batches. Run `/execute`.
 3. **QUALITY ASSURANCE** — Verify the branch before merging. Run `/verify`.
-4. **DOCUMENTATION** — Sync docs and visuals. Run `/verify-docs`.
+4. **DOCUMENTATION** — Audit docs with `/review-docs`, then run `/fix-docs`, `/generate-diagrams`, or `/generate-images` as needed.
 
 ## CODING STANDARDS
 - **Package Manager:** Use `uv` for all Python dependency management.

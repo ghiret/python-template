@@ -23,7 +23,7 @@ This will prompt you to configure:
 ├── .claude/           # Claude Code commands and skills
 ├── .devcontainer/     # DevContainer configuration
 ├── docs/              # Documentation (MkDocs)
-├── plans/             # Implementation plans
+├── agent_docs/plans/  # Implementation plans and agent scratch work (ignored)
 ├── src/               # Source code
 ├── tests/             # Test files
 ├── pyproject.toml     # Project configuration
@@ -34,7 +34,7 @@ This will prompt you to configure:
 
 ### 1. Create a Plan
 
-Before implementing a feature, create a plan in `plans/`:
+Before implementing a feature, create a plan in `agent_docs/plans/`:
 
 ```markdown
 # Feature: My New Feature
@@ -55,19 +55,19 @@ Brief description of the feature.
 ### 2. Review the Plan
 
 ```
-/project:review-plan plans/my-feature.md
+/project:review-plan agent_docs/plans/my-feature.md
 ```
 
 ### 3. Execute the Plan
 
 ```
-/project:execute-plan plans/my-feature.md
+/project:execute-plan agent_docs/plans/my-feature.md
 ```
 
 ### 4. Verify Implementation
 
 ```
-/project:verify-implementation plans/my-feature.md
+/project:verify-implementation agent_docs/plans/my-feature.md
 ```
 
 ## Adding Dependencies

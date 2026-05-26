@@ -1,7 +1,6 @@
 ---
 name: generate-diagrams
 description: Generate or update architecture diagrams using the Python diagrams library. Creates/edits diagram scripts and runs them to produce PNGs.
-disable-model-invocation: true
 allowed-tools: Read, Edit, Write, Bash, Glob, Grep
 ---
 

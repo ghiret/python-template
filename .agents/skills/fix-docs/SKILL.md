@@ -1,7 +1,6 @@
 ---
 name: fix-docs
 description: Update text documentation (README, markdown, rst) based on a documentation drift report. Does not touch diagrams or images.
-disable-model-invocation: true
 allowed-tools: Read, Edit, Grep, Glob
 ---
 

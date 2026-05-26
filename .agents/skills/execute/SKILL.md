@@ -1,7 +1,6 @@
 ---
 name: execute
 description: Executes implementation plans autonomously in batches. Runs all tasks to completion without pausing for feedback unless blocked.
-disable-model-invocation: true
 ---
 
 # Executing Plans

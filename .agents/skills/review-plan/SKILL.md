@@ -1,7 +1,6 @@
 ---
 name: review-plan
 description: Lead Architect review of implementation plans. Checks for redundancy, architectural fit, and testability. Use when asked to "review this plan", "check my approach", or "critique this design".
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
