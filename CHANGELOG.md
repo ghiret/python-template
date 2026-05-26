@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/ghiret/python-template/compare/v0.3.0...v0.4.0) (2026-05-26)
+
+
+### Features
+
+* add Codex artifact skill backports ([63c9f5e](https://github.com/ghiret/python-template/commit/63c9f5ec71e9527a47f0d3f1ea715ce50a1b8d36))
+* add Codex artifact skill backports ([6782ad2](https://github.com/ghiret/python-template/commit/6782ad2dfcd1f90c7215ab62f4a83828e3ce5d44))
+* add HTML artifact workflow conventions ([10df466](https://github.com/ghiret/python-template/commit/10df4661d3765fe85ff3752668440997ce37bddf))
+* add HTML artifact workflow conventions ([5804a33](https://github.com/ghiret/python-template/commit/5804a331e0152aed4eac6e3187bcba24ea32472a))
+* add test quality verification skill ([a5230bc](https://github.com/ghiret/python-template/commit/a5230bc0191b1ad1d2fb0d5a423544b26a9ac00e))
+
 ## [0.3.0](https://github.com/ghiret/python-template/compare/v0.2.0...v0.3.0) (2026-03-24)
 
 
