@@ -84,6 +84,7 @@ For each iteration i = 1, 2, 3, ..., N (you MUST go in order, one at a time):
    >
    > Read the `fix-plan` companion skill using the Skill Path Resolution rule above and execute its fix process on the plan file.
    > Apply ALL recommended changes from the review.
+   > If the plan is HTML or HTML-like markup, convert it to the exact markdown phase structure required by `/ralph-execute`: `## Phase N: Title`, `- [ ]` task checkboxes, and `### Verification` subsections.
    > When done, announce what was changed.
 
 8. Wait for the agent to complete

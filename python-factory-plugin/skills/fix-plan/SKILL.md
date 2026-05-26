@@ -45,9 +45,9 @@ Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if 
 * **Your Fix:** Move the step: "Create `MyService` class. Implement logic there. Inject Service into Controller."
 
 #### Fix Type D: Resolving "Phase Structure"
-* **Bad Plan:** Tasks in a flat numbered list or unstructured sections.
+* **Bad Plan:** Tasks in a flat numbered list, unstructured sections, or HTML/HTML-like markup.
 * **Reviewer Feedback:** "Plan must use `## Phase N: Title` headings with task checkboxes and verification subsections."
-* **Your Fix:** Restructure the plan into logical phases. Group related tasks together. Each phase gets:
+* **Your Fix:** Restructure the plan into markdown logical phases. Group related tasks together. Each phase gets:
     ```markdown
     ## Phase N: Descriptive Title
     - [ ] Task description
@@ -55,6 +55,13 @@ Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if 
     ### Verification
     - Specific test command or check
     ```
+* **HTML plan conversion:** If the plan contains HTML tags such as `<h1>`, `<h2>`, `<section>`, `<ol>`, `<ul>`, `<li>`, `<p>`, or `<code>`, convert the plan file to markdown before resubmitting:
+    - Convert phase-like headings to `## Phase N: Title`
+    - Convert implementation list items to `- [ ] Task description`
+    - Convert verification/test/check sections to `### Verification`
+    - Preserve code paths, commands, acceptance criteria, and architectural notes as markdown text
+    - Remove presentational HTML wrappers that `/ralph-execute` cannot parse
+    - A full-file rewrite is acceptable when the source plan is HTML because the parser requires markdown phase headings
 * **Guidelines for grouping into phases:**
     - Group by dependency: tasks that depend on each other go in the same phase
     - Group by layer: data models → business logic → API → UI
@@ -63,7 +70,7 @@ Use the `Edit` tool to modify the plan file. **Do not rewrite the whole file if 
 
 ### Step 3: Sanity Check
 After editing, quickly read the file again to ensure:
-1.  The structure is still a numbered list/step-by-step format.
+1.  The structure uses `## Phase N: Title` headings with `- [ ]` tasks and `### Verification` subsections.
 2.  The "Reinvention" items are gone.
 3.  The Tests are present.
 

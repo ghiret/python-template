@@ -128,9 +128,14 @@ For fully autonomous development with built-in review loops and per-phase commit
 # Auto-execute with verification and commits per phase
 /ralph-execute agent_docs/plans/my-feature.md
 
-# Custom iteration counts
+# Custom drift review iteration count
 /ralph-review 3 agent_docs/plans/my-feature.md
 /ralph-execute 10 agent_docs/plans/my-feature.md
+
+# Execute selected phases only
+/ralph-execute phase=2 agent_docs/plans/my-feature.md
+/ralph-execute phases=2-4 agent_docs/plans/my-feature.md
+/ralph-execute 3 phases=1,3 agent_docs/plans/my-feature.md
 ```
 
 ### Available Subagents

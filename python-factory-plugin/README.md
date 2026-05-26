@@ -33,7 +33,7 @@ All skills are namespaced as `/python-factory:<skill-name>` when installed as a 
 | generate-images | `/python-factory:generate-images` | Generate AI documentation images |
 | init-project | `/python-factory:init-project` | Initialize a new project from the template |
 | ralph-review | `/python-factory:ralph-review` | Autonomous review loop for implementation plans |
-| ralph-execute | `/python-factory:ralph-execute` | Autonomous phase execution pipeline |
+| ralph-execute | `/python-factory:ralph-execute` | Autonomous full-plan or selected-phase execution pipeline |
 | web-design-guidelines | `/python-factory:web-design-guidelines` | Review UI code for Web Interface Guidelines compliance |
 
 ## Agents
